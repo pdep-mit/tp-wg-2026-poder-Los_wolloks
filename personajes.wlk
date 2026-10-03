@@ -8,10 +8,10 @@ var property velocidad  = 1
 
 method image() {
     if (vida<=vidaMaxima/3) {
-        return "estudiante_danio.jpg"
+        return "estudiante_danio.png"
     }
     else{
-        return "estudiante.jpg"
+        return "estudiante.png"
     }
 
 
