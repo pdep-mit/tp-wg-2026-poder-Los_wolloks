@@ -15,9 +15,19 @@ method image() {
     else{
         return "estudiante.png"
     }
-
-
-  
+ method recibirDanio(cantidad) {
+        vida = 0.max(vida - cantidad) 
+        
+        if (vida == 0) {
+            self.morir()
+        }
+    }
+  method morir(){
+velocidad=0
+puedeDisparar=false
+game.say(self,"Nos vemos en el recu")
+game.schedule(2000,{game.stop()})
+  }
 }
 
 }
