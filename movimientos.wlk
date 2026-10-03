@@ -1,3 +1,4 @@
+import configGenerales.*
 import wollok.game.*
 
 object movimiento {

@@ -15,6 +15,17 @@ method image() {
     else{
         return "estudiante.png"
     }
+}
+    method disparar(arma,direccion){
+        if(puedeDisparar){
+      self.puedeDisparar(false)
+            arma.disparar(self,direccion)
+        }
+        
+    }
+    method finalizarRecarga(){
+        self.puedeDisparar(true)
+    }
  method recibirDanio(cantidad) {
         vida = 0.max(vida - cantidad) 
         
@@ -28,7 +39,7 @@ puedeDisparar=false
 game.say(self,"Nos vemos en el recu")
 game.schedule(2000,{game.stop()})
   }
-}
+
 
 }
 

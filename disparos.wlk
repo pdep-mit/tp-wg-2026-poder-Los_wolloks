@@ -1,11 +1,13 @@
 import wollok.game.*
 object arma {
   method disparar(tirador,direccionDisparo) {
+   const recarga=tirador.velocidadAtaque()
    const nuevaLagrima  = new Proyectil(
     position=tirador.position(),
-    direccion=direccionDisparo) 
+    direccion=direccionDisparo)
     game.addVisual(nuevaLagrima)
     nuevaLagrima.iniciarMov()
+    game.schedule(recarga,{tirador.finalizarRecarga()})
   }
 }
 
@@ -30,6 +32,6 @@ class Proyectil  {
  }
 method destruir(){
     game.removeVisual(self)
-    game.removeTickEvent("lagrima_nro" + self.identity().toString())
+    game.removeTickEvent("lagrima_nro_" + self.identity().toString())
 }
 }
