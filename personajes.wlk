@@ -34,10 +34,10 @@ method image() {
         }
     }
   method morir(){
-velocidad=0
-puedeDisparar=false
-game.say(self,"Nos vemos en el recu")
-game.schedule(2000,{game.stop()})
+    velocidad=0
+    puedeDisparar=false
+    game.say(self,"Nos vemos en el recu")
+    game.schedule(2000,{game.stop()})
   }
 
 
@@ -49,13 +49,18 @@ class Enemigo {
     var property vida   
     var property vidaMaxima
     var property danio
-    var property position //me falta que se mueva solo y persiga al jugador
+    var property position //deberia setearse al crear el enemigo
     
     var property imagenDaniado 
     var property imagenEnemigo 
     var property imagenMuerto 
     
-    
+    method iniciarMov(){
+        game.onTick(500, "enemigo_persigue_" + self.identity().toString(), { self.acercarseA() })
+
+        game.onCollideDo(self, {objetoChoque => objetoChoque.recibirDanio(danio)})
+    }
+
     method recibirDanio(cantidad) {
         vida = 0.max(vida - cantidad) 
         
@@ -65,6 +70,8 @@ class Enemigo {
     }
     
     method morir() {
+        game.removeTickEvent("enemigo_persigue_" + self.identity().toString())
+        
         game.schedule(800, { game.removeVisual(self) })
     }
     
@@ -77,6 +84,25 @@ class Enemigo {
             return imagenEnemigo
         }
     }
+    
+    method acercarseA() {
+        var nuevaPosicion = position
+        
+        if (position.x() < estudiante.position().x()) {
+            nuevaPosicion = nuevaPosicion.right(1)
+        } else if (position.x() > estudiante.position().x()) {
+            nuevaPosicion = nuevaPosicion.left(1)
+        }
+        
+        if (position.y() < estudiante.position().y()) {
+            nuevaPosicion = nuevaPosicion.up(1)
+        } else if (position.y() > estudiante.position().y()) {
+            nuevaPosicion = nuevaPosicion.down(1)
+        }
+        
+        position = nuevaPosicion
+    }
+
 }
 const parcial = new Enemigo(
     vida = 5, 
