@@ -26,6 +26,9 @@ method image() {
     method finalizarRecarga(){
         self.puedeDisparar(true)
     }
+    method chocarEnemigo(enemigo){
+        self.recibirDanio(enemigo.danio())
+    }
  method recibirDanio(cantidad) {
         vida = 0.max(vida - cantidad) 
         
@@ -56,10 +59,8 @@ class Enemigo {
     var property imagenMuerto 
     
     method iniciarMov(){
-        game.onTick(500, "enemigo_persigue_" + self.identity().toString(), { self.acercarseA() })
-
-        game.onCollideDo(self, {objetoChoque => objetoChoque.recibirDanio(danio)})
-    }
+        game.onTick(2000, "enemigo_persigue_" + self.identity().toString(), { self.acercarseA() })
+  }
 
     method recibirDanio(cantidad) {
         vida = 0.max(vida - cantidad) 
@@ -86,7 +87,11 @@ class Enemigo {
     }
     
     method acercarseA() {
-        var nuevaPosicion = position
+        if (position == estudiante.position()) {
+        estudiante.chocarEnemigo(self)
+    }
+       else{
+         var nuevaPosicion = position
         
         if (position.x() < estudiante.position().x()) {
             nuevaPosicion = nuevaPosicion.right(1)
@@ -101,6 +106,7 @@ class Enemigo {
         }
         
         position = nuevaPosicion
+    }
     }
 
 }
