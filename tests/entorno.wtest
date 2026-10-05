@@ -1,0 +1,36 @@
+import configGenerales.*
+import personajes.*
+import movimientos.*
+import wollok.game.*
+
+describe "Entorno: límites del tablero y sala del tesoro" {
+
+  test "El estudiante no se sale del tablero por arriba" {
+    20.times({ i => movimiento.mover(estudiante, haciaArriba) })
+    assert.equals(config.alturaMax() - 1, estudiante.position().y())
+  }
+
+  test "El estudiante no se sale del tablero por abajo" {
+    20.times({ i => movimiento.mover(estudiante, haciaAbajo) })
+    assert.equals(0, estudiante.position().y())
+  }
+
+  test "El estudiante no se sale del tablero por la derecha" {
+    20.times({ i => movimiento.mover(estudiante, haciaLaDerecha) })
+    assert.equals(config.anchoMax() - 1, estudiante.position().x())
+  }
+
+  test "El estudiante no se sale del tablero por la izquierda" {
+    20.times({ i => movimiento.mover(estudiante, haciaLaIzquierda) })
+    assert.equals(0, estudiante.position().x())
+  }
+
+  test "El pedestal queda en el centro del tablero configurado" {
+    config.configurarVentana()
+    assert.equals(game.at(7, 5), pedestal.position())
+  }
+
+  test "El ítem de la sala del tesoro va sobre el pedestal" {
+    assert.equals(pedestal.position(), salaDelTesoro.posicionDelItem())
+  }
+}
