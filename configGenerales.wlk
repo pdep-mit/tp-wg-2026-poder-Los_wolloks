@@ -66,4 +66,5 @@ object pedestal {
   
   method position() = game.center()
   method image() = "pedestal.png"
+  method chocarProyectil(proyectil){proyectil.destruir()}
 }

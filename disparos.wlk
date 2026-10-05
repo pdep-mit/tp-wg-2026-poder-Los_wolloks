@@ -6,7 +6,6 @@ object arma {
     const nuevaLagrima = new Proyectil(
       position = tirador.position(),
       direccion = direccionDisparo,
-      autor = tirador,
       danio = tirador.danio()
     )
     game.addVisual(nuevaLagrima)
@@ -19,8 +18,7 @@ class Proyectil {
   var property position
   var property direccion
   var property velocidad = 1
-  var property autor
-  var property danio
+   var property danio
   
   method image() = "lagrima.png"
   
@@ -32,16 +30,12 @@ class Proyectil {
     )
     game.onCollideDo(
       self,
-      { objetoChoque => if (objetoChoque != autor) {
-          objetoChoque.recibirDanio(danio)
-          self.destruir()
-        } }
+      { objetoChoque => 
+          objetoChoque.chocarProyectil(self)
+          }
     )
   }
-  method chocarEnemigo(enemigo) {
-    enemigo.recibirDanio(danio)
-    self.destruir()
-  }
+  
   method avanzar() {
     const nuevaPos = direccion.posicionSig(self)
     if (nuevaPos == self.position()) self.destruir()
