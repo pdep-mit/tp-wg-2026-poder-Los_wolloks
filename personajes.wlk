@@ -60,7 +60,7 @@ class Enemigo {
     
     method iniciarMov(){
         game.onTick(2000, "enemigo_persigue_" + self.identity().toString(), { self.acercarseA() })
-  }
+    }
 
     method recibirDanio(cantidad) {
         vida = 0.max(vida - cantidad) 

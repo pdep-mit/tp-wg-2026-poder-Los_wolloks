@@ -6,7 +6,7 @@ import disparos.*
 
 object config {
 
-   method anchoMax() = 15
+  method anchoMax() = 15
   method alturaMax() = 11
   method tamanioCelda() = 50
 
@@ -14,6 +14,7 @@ object config {
     self.configurarVentana()
     salaDelTesoro.cargar()
     self.agregarComponentesVisuales()
+    parcial.iniciarMov()
     self.configurarAcciones()
   }
 
@@ -26,9 +27,10 @@ object config {
 
   method agregarComponentesVisuales() {
     game.addVisual(estudiante)
-    
+    game.addVisual(parcial) 
+
   }
- 
+  
   method configurarAcciones() {
    
     keyboard.w().onPressDo({ movimiento.mover(estudiante, haciaArriba) })
@@ -43,6 +45,8 @@ object config {
 
 
   }
+  
+
 }
 
 

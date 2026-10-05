@@ -1,6 +1,7 @@
 import configGenerales.*
 import wollok.game.*
 
+
 object movimiento {
     method mover(personaje,direccion){
   const nuevaPosicion= direccion.posicionSig(personaje)
