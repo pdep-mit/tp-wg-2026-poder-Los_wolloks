@@ -61,7 +61,11 @@ object salaDelTesoro {
     game.boardGround(self.fondo())
     game.addVisual(pedestal)
 
-    const item = new ConstanciaAprobado(position = self.posicionDelItem())
+    const item = [
+    new ConstanciaAprobado(position = self.posicionDelItem()),
+    new ApuntesWollok(position = self.posicionDelItem()),
+    new CafeDelBuffet(position = self.posicionDelItem())
+  ].anyOne()
     game.addVisual(item)
     game.whenCollideDo(item, { otro => otro.chocarItem(item) })
   }

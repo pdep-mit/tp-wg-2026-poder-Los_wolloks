@@ -59,3 +59,21 @@ class ConstanciaAprobado inherits ItemPedestal {
     personaje.ganarVida(1)
   }
 }
+
+class ApuntesWollok inherits ItemPedestal {
+  override method image() = "apuntes_wollok.png"
+  override method titulo() = "Ahora entiendo polimorfismo!"
+  override method descripcion() = "+1 daño"
+  override method efecto(personaje) {
+    personaje.danio(personaje.danio() + 1)
+  }
+}
+
+class CafeDelBuffet inherits ItemPedestal {
+  override method image() = "cafe_del_buffet.png"
+  override method titulo() = "Café del buffet!"
+  override method descripcion() = " + Velocidad de ataque"
+  override method efecto(personaje) {
+    personaje.velocidadAtaque(150.max(personaje.velocidadAtaque() - 150))
+  }
+}
