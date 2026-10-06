@@ -41,10 +41,10 @@ class ItemPedestal {
   // los disparos pasan de largo por el item
   method chocarProyectil(proyectil) { }
 
-  method chocarCon(otro) {
-    if (otro == estudiante && !agarrado) {
+  method chocarEstudiante(personaje) {
+    if (!agarrado) {
       agarrado = true
-      self.efecto(estudiante)
+      self.efecto(personaje)
       mensajeItem.mostrar(self.titulo(), self.descripcion())
       game.removeVisual(self)
     }

@@ -51,6 +51,9 @@ method image() {
   vida += cantidad
 }   
 
+  method chocarItem(item) {
+    item.chocarEstudiante(self)
+  }
 
 }
 
@@ -119,6 +122,8 @@ class Enemigo {
         position = nuevaPosicion
     }
     }
+
+    method chocarItem(item) { }
 
 }
 const parcial = new Enemigo(

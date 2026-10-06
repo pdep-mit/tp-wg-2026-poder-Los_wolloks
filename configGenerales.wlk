@@ -63,7 +63,7 @@ object salaDelTesoro {
 
     const item = new ConstanciaAprobado(position = self.posicionDelItem())
     game.addVisual(item)
-    game.whenCollideDo(item, { otro => item.chocarCon(otro) })
+    game.whenCollideDo(item, { otro => otro.chocarItem(item) })
   }
 }
 
