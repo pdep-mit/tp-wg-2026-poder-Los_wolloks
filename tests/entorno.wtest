@@ -1,8 +1,9 @@
 import configGenerales.*
 import personajes.*
 import movimientos.*
+import items.*
+import disparos.*
 import wollok.game.*
-
 describe "Entorno: límites del tablero y sala del tesoro" {
 
   test "El estudiante no se sale del tablero por arriba" {
@@ -31,6 +32,111 @@ describe "Entorno: límites del tablero y sala del tesoro" {
   }
 
   test "El ítem de la sala del tesoro va sobre el pedestal" {
-    assert.equals(pedestal.position(), salaDelTesoro.posicionDelItem())
+    assert.equals(pedestal.position().up(1), salaDelTesoro.posicionDelItem())
+  }
+}
+
+describe "Ítems: efecto sobre el estudiante" {
+
+  const constancia = new ConstanciaAprobado(position = game.at(1, 1))
+
+  test "La constancia de aprobado suma 1 de vida" {
+    constancia.efecto(estudiante)
+    assert.equals(4, estudiante.vida())
+  }
+
+  test "La constancia de aprobado suma 1 a la vida máxima" {
+    constancia.efecto(estudiante)
+    assert.equals(4, estudiante.vidaMaxima())
+  }
+
+  test "La constancia suma vida aunque el estudiante esté dañado" {
+    estudiante.vida(1)
+    constancia.efecto(estudiante)
+    assert.equals(2, estudiante.vida())
+    assert.equals(4, estudiante.vidaMaxima())
+  }
+
+  test "La constancia no modifica el resto de los stats" {
+    constancia.efecto(estudiante)
+    assert.equals(1, estudiante.danio())
+    assert.equals(1, estudiante.velocidad())
+    assert.equals(500, estudiante.velocidadAtaque())
+  }
+
+  test "Un enemigo que toca el ítem no lo activa" {
+    constancia.chocarCon(parcial)
+    assert.equals(3, estudiante.vida())
+    assert.equals(3, estudiante.vidaMaxima())
+  }
+
+  test "El ítem informa su título y descripción" {
+    assert.equals("Constancia de aprobado!", constancia.titulo())
+    assert.equals("+1 vida", constancia.descripcion())
+  }
+}
+
+describe "Direcciones: polimorfismo de posicionSig" {
+
+  method prepararEstudianteEn(x, y) {
+    estudiante.position(game.at(x, y))
+    estudiante.velocidad(1)
+  }
+
+  test "haciaArriba devuelve la celda de arriba" {
+    self.prepararEstudianteEn(5, 5)
+    assert.equals(game.at(5, 6), haciaArriba.posicionSig(estudiante))
+  }
+
+  test "haciaAbajo devuelve la celda de abajo" {
+    self.prepararEstudianteEn(5, 5)
+    assert.equals(game.at(5, 4), haciaAbajo.posicionSig(estudiante))
+  }
+
+  test "haciaLaDerecha devuelve la celda de la derecha" {
+    self.prepararEstudianteEn(5, 5)
+    assert.equals(game.at(6, 5), haciaLaDerecha.posicionSig(estudiante))
+  }
+
+  test "haciaLaIzquierda devuelve la celda de la izquierda" {
+    self.prepararEstudianteEn(5, 5)
+    assert.equals(game.at(4, 5), haciaLaIzquierda.posicionSig(estudiante))
+  }
+
+  test "calcular la posición siguiente no mueve al personaje" {
+    self.prepararEstudianteEn(5, 5)
+    haciaArriba.posicionSig(estudiante)
+    assert.equals(game.at(5, 5), estudiante.position())
+  }
+
+  test "una velocidad mayor avanza más celdas" {
+    self.prepararEstudianteEn(5, 5)
+    estudiante.velocidad(3)
+    assert.equals(game.at(5, 8), haciaArriba.posicionSig(estudiante))
+  }
+
+  test "con velocidad grande no se pasa del techo" {
+    self.prepararEstudianteEn(5, 9)
+    estudiante.velocidad(5)
+    assert.equals(game.at(5, config.alturaMax() - 1), haciaArriba.posicionSig(estudiante))
+  }
+
+  test "con velocidad grande no se pasa del piso" {
+    self.prepararEstudianteEn(5, 1)
+    estudiante.velocidad(5)
+    assert.equals(game.at(5, 0), haciaAbajo.posicionSig(estudiante))
+  }
+
+  test "movimiento.mover funciona igual con cualquier dirección" {
+    self.prepararEstudianteEn(5, 5)
+    movimiento.mover(estudiante, haciaLaDerecha)
+    assert.equals(game.at(6, 5), estudiante.position())
+    movimiento.mover(estudiante, haciaArriba)
+    assert.equals(game.at(6, 6), estudiante.position())
+  }
+
+  test "el proyectil reutiliza las mismas direcciones" {
+    const lagrima = new Proyectil(position = game.at(5, 5), direccion = haciaLaDerecha, danio = 1)
+    assert.equals(game.at(6, 5), haciaLaDerecha.posicionSig(lagrima))
   }
 }
