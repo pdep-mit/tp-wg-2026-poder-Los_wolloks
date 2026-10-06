@@ -2,6 +2,7 @@ import wollok.game.*
 import personajes.*
 import movimientos.*
 import disparos.*
+import items.*
 
 
 object config {
@@ -53,12 +54,16 @@ object config {
 object salaDelTesoro {
   method fondo() = "sala-del-tesoro.png"
 
-  
-  method posicionDelItem() = pedestal.position()
+  // el item flota una celda arriba del pedestal
+  method posicionDelItem() = pedestal.position().up(1)
 
   method cargar() {
     game.boardGround(self.fondo())
     game.addVisual(pedestal)
+
+    const item = new ConstanciaAprobado(position = self.posicionDelItem())
+    game.addVisual(item)
+    game.whenCollideDo(item, { otro => item.chocarCon(otro) })
   }
 }
 

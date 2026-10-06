@@ -46,6 +46,11 @@ method image() {
     game.schedule(2000,{game.stop()})
   }
 
+  method ganarVida(cantidad) {
+  vidaMaxima += cantidad
+  vida += cantidad
+}   
+
 
 }
 
