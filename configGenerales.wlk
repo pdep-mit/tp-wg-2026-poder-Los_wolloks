@@ -77,3 +77,4 @@ object pedestal {
   method image() = "pedestal.png"
   method chocarProyectil(proyectil){proyectil.destruir()}
 }
+

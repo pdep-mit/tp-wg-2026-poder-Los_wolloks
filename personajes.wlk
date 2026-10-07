@@ -1,4 +1,5 @@
 import wollok.game.*
+import movimientos.*
 object estudiante {
 var property position = game.at(4,4)
 var property vidaMaxima = 3 
@@ -64,15 +65,16 @@ class Enemigo {
     var property vidaMaxima
     var property danio
     var property position //deberia setearse al crear el enemigo
+    var property velocidad = 1
     
     var property imagenDaniado 
     var property imagenEnemigo 
     var property imagenMuerto 
     
     method iniciarMov(){
-        game.onTick(1000, "enemigo_persigue_" + self.identity().toString(), { self.acercarseA() })
+        game.onTick(1000, "enemigo_persigue_" + self.identity().toString(), { self.acercarseAenemigo() })
     }
- method chocarProyectil(proyectil){
+    method chocarProyectil(proyectil){
     self.recibirDanio(proyectil.danio())
     proyectil.destruir()
     }
@@ -100,27 +102,29 @@ class Enemigo {
         }
     }
     
-    method acercarseA() {
-        if (position == estudiante.position()) {
-        estudiante.chocarEnemigo(self)
-    }
-       else{
-         var nuevaPosicion = position
-        
-        if (position.x() < estudiante.position().x()) {
-            nuevaPosicion = nuevaPosicion.right(1)
-        } else if (position.x() > estudiante.position().x()) {
-            nuevaPosicion = nuevaPosicion.left(1)
+    method acercarseAenemigo() {
+        if (self.estaAlLadoDelEstudiante()) {
+            estudiante.chocarEnemigo(self)
+        } else {
+            movimiento.mover(self, self.direccionHorizontal())
+            movimiento.mover(self, self.direccionVertical())
         }
-        
-        if (position.y() < estudiante.position().y()) {
-            nuevaPosicion = nuevaPosicion.up(1)
-        } else if (position.y() > estudiante.position().y()) {
-            nuevaPosicion = nuevaPosicion.down(1)
-        }
-        
-        position = nuevaPosicion
     }
+
+    method estaAlLadoDelEstudiante() {
+        return position.distance(estudiante.position()) <= 1.5
+    }
+
+    method direccionHorizontal() {
+        if (position.x() < estudiante.position().x()) { return haciaLaDerecha }
+        if (position.x() > estudiante.position().x()) { return haciaLaIzquierda }
+        return quieto
+    }
+
+    method direccionVertical() {
+        if (position.y() < estudiante.position().y()) { return haciaArriba }
+        if (position.y() > estudiante.position().y()) { return haciaAbajo }
+        return quieto
     }
 
     method chocarItem(item) { }
@@ -129,9 +133,10 @@ class Enemigo {
 const parcial = new Enemigo(
     vida = 5, 
     vidaMaxima = 5,
-    danio = 1.5,
+    danio = 0.5,
     position = game.at(7,8), 
     imagenDaniado = "parcialDaniado.png", 
     imagenEnemigo = "parcial.png", 
     imagenMuerto = "parcialMuerto.png"
 )
+

@@ -65,3 +65,9 @@ object haciaLaIzquierda{
   }
     }
 }
+
+object quieto {
+    method posicionSig(personaje) {
+        return personaje.position()
+    }
+}
