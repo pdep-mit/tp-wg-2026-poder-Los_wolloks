@@ -1,13 +1,13 @@
-# Wollok Game: Título de juego
+# Wollok Game: Título de juego (Todavía no lo pensamos)
 
-**Grupo:** Nombre de Grupo
+**Grupo:** Los Wolloks
 
 **Integrantes:**
-- Nombre y Apellido
-- Nombre y Apellido
-- Nombre y Apellido
-- Nombre y Apellido
-- Nombre y Apellido
+Fabricio Grela
+Jhon Cansaya
+Lionel Gonzalez
+Luciano Kapp
+Mateo Martinez Gomez
 
 ## Consignas
 
@@ -22,13 +22,22 @@ Recuerden que para cada checkpoint hay [expectativas mínimas](https://docs.goog
 
 # Cómo jugar
 
-## Objetivo
 
-TODO
+## Objetivo
+Sos un estudiante de la UTN FRBA que tiene que sobrevivir a los parciales moviéndose por la sala, disparando a los enemigos (parciales) antes de que te alcancen y juntando items en la sala del tesoro para volverte más fuerte.
+
 
 ## Controles
 
-TODO
+| W | Moverse hacia arriba |
+| A | Moverse hacia la izquierda |
+| S | Moverse hacia abajo |
+| D | Moverse hacia la derecha |
+| ↑ | Disparar hacia arriba |
+| ← | Disparar hacia la izquierda |
+| ↓ | Disparar hacia abajo |
+| → | Disparar hacia la derecha |
+
 
 # Explicaciones
 
