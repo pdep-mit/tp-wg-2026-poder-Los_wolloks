@@ -3,11 +3,11 @@
 **Grupo:** Los Wolloks
 
 **Integrantes:**
-Fabricio Grela
-Jhon Cansaya
-Lionel Gonzalez
-Luciano Kapp
-Mateo Martinez Gomez
+- Fabricio Grela
+- Jhon Cansaya
+- Lionel Gonzalez
+- Luciano Kapp
+- Mateo Martinez Gomez
 
 ## Consignas
 
@@ -29,14 +29,14 @@ Sos un estudiante de la UTN FRBA que tiene que sobrevivir a los parciales movié
 
 ## Controles
 
-| W | Moverse hacia arriba |
-| A | Moverse hacia la izquierda |
-| S | Moverse hacia abajo |
-| D | Moverse hacia la derecha |
-| ↑ | Disparar hacia arriba |
-| ← | Disparar hacia la izquierda |
-| ↓ | Disparar hacia abajo |
-| → | Disparar hacia la derecha |
+- | W | Moverse hacia arriba |
+- | A | Moverse hacia la izquierda |
+- | S | Moverse hacia abajo |
+- | D | Moverse hacia la derecha |
+- | ↑ | Disparar hacia arriba |
+- | ← | Disparar hacia la izquierda |
+- | ↓ | Disparar hacia abajo |
+- | → | Disparar hacia la derecha |
 
 
 # Explicaciones
