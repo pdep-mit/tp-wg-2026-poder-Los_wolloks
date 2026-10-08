@@ -6,75 +6,134 @@ import items.*
 
 
 object config {
-
   method anchoMax() = 15
+  
   method alturaMax() = 11
+  
   method tamanioCelda() = 50
-
+  
   method configurarJuego() {
     self.configurarVentana()
     salaDelTesoro.cargar()
     self.agregarComponentesVisuales()
     parcial.iniciarMov()
     self.configurarAcciones()
+    game.onTick(50, "dispararEstudiante", { estadoTeclasDisparo.procesar() })
   }
-
+  
   method configurarVentana() {
     game.title("Los Wolloks | Isaac UTN")
     game.width(self.anchoMax())
     game.height(self.alturaMax())
     game.cellSize(self.tamanioCelda())
   }
-
+  
   method agregarComponentesVisuales() {
     game.addVisual(estudiante)
-    game.addVisual(parcial) 
-
+    game.addVisual(parcial)
   }
   
   method configurarAcciones() {
-   
-    keyboard.w().onPressDo({ movimiento.mover(estudiante, haciaArriba) })
-    keyboard.s().onPressDo({ movimiento.mover(estudiante, haciaAbajo) })
-    keyboard.d().onPressDo({ movimiento.mover(estudiante, haciaLaDerecha) })
-    keyboard.a().onPressDo({ movimiento.mover(estudiante, haciaLaIzquierda) })
+    keyboard.w().onPressDo({ 
+      estadoTeclasMovimiento.modificarY(1)
+      estadoTeclasMovimiento.procesar()
+    })
+    keyboard.w().onReleaseDo({ 
+      estadoTeclasMovimiento.modificarY(-1)
+      estadoTeclasMovimiento.procesar()
+    })
 
-    keyboard.up().onPressDo({estudiante.disparar(arma, haciaArriba)})
-    keyboard.down().onPressDo({estudiante.disparar(arma, haciaAbajo)})
-    keyboard.right().onPressDo({estudiante.disparar(arma, haciaLaDerecha)})
-    keyboard.left().onPressDo({estudiante.disparar(arma, haciaLaIzquierda)})
+    keyboard.s().onPressDo({ 
+      estadoTeclasMovimiento.modificarY(-1)
+      estadoTeclasMovimiento.procesar()
+    })
+    keyboard.s().onReleaseDo({ 
+      estadoTeclasMovimiento.modificarY(1)
+      estadoTeclasMovimiento.procesar()
+    })
 
+    keyboard.d().onPressDo({ 
+      estadoTeclasMovimiento.modificarX(1)
+      estadoTeclasMovimiento.procesar()
+    })
+    keyboard.d().onReleaseDo({ 
+      estadoTeclasMovimiento.modificarX(-1)
+      estadoTeclasMovimiento.procesar()
+    })
 
+    keyboard.a().onPressDo({ 
+      estadoTeclasMovimiento.modificarX(-1)
+      estadoTeclasMovimiento.procesar()
+    })
+    keyboard.a().onReleaseDo({ 
+      estadoTeclasMovimiento.modificarX(1)
+      estadoTeclasMovimiento.procesar()
+    })
+
+    keyboard.up().onPressDo({ 
+      estadoTeclasDisparo.modificarY(1)
+      estadoTeclasDisparo.procesar()
+    })
+    keyboard.up().onReleaseDo({ 
+      estadoTeclasDisparo.modificarY(-1)
+      estadoTeclasDisparo.procesar()
+    })
+
+    keyboard.down().onPressDo({ 
+      estadoTeclasDisparo.modificarY(-1)
+      estadoTeclasDisparo.procesar()
+    })
+    keyboard.down().onReleaseDo({ 
+      estadoTeclasDisparo.modificarY(1)
+      estadoTeclasDisparo.procesar()
+    })
+
+    keyboard.right().onPressDo({ 
+      estadoTeclasDisparo.modificarX(1)
+      estadoTeclasDisparo.procesar()
+    })
+    keyboard.right().onReleaseDo({ 
+      estadoTeclasDisparo.modificarX(-1)
+      estadoTeclasDisparo.procesar()
+    })
+
+    keyboard.left().onPressDo({ 
+      estadoTeclasDisparo.modificarX(-1)
+      estadoTeclasDisparo.procesar()
+    })
+    keyboard.left().onReleaseDo({ 
+      estadoTeclasDisparo.modificarX(1)
+      estadoTeclasDisparo.procesar()
+    })
   }
-  
-
 }
-
 
 object salaDelTesoro {
   method fondo() = "sala-del-tesoro.png"
-
+  
   // el item flota una celda arriba del pedestal
   method posicionDelItem() = pedestal.position().up(1)
-
+  
   method cargar() {
     game.boardGround(self.fondo())
     game.addVisual(pedestal)
-
+    
     const item = [
-    new ConstanciaAprobado(position = self.posicionDelItem()),
-    new ApuntesWollok(position = self.posicionDelItem()),
-    new CafeDelBuffet(position = self.posicionDelItem())
-  ].anyOne()
+      new ConstanciaAprobado(position = self.posicionDelItem()),
+      new ApuntesWollok(position = self.posicionDelItem()),
+      new CafeDelBuffet(position = self.posicionDelItem())
+    ].anyOne()
     game.addVisual(item)
     game.whenCollideDo(item, { otro => otro.chocarItem(item) })
   }
 }
 
 object pedestal {
-  
   method position() = game.center()
+  
   method image() = "pedestal.png"
-  method chocarProyectil(proyectil){proyectil.destruir()}
+  
+  method chocarProyectil(proyectil) {
+    proyectil.destruir()
+  }
 }
-

@@ -7,8 +7,28 @@ var property vida = 3
 var property danio = 1
 var property velocidad  = 1
 var property puedeDisparar = true
-var property velocidadAtaque = 500
+var property puedeMoverse = true
+var property velocidadAtaque = 800
+method tiempoEntrePasos()=(200 - (velocidad * 20)).max(50)
+method mover(direccion) {
+ 
+    if (puedeMoverse and direccion.esMovimiento()) {
+      movimiento.mover(self, direccion)
+      puedeMoverse = false
+      
+      game.schedule(self.tiempoEntrePasos(), {
+        puedeMoverse = true
+        self.intentarSeguirMoviendose()
+      })
+    }
+  }
 
+  method intentarSeguirMoviendose() {
+  
+    if (estadoTeclasMovimiento.estaActivo()) {
+      self.mover(estadoTeclasMovimiento.direccionActual())
+    }
+  }
 method image() {
     if (vida<=vidaMaxima/3) {
         return "estudiante_danio.png"
@@ -18,7 +38,7 @@ method image() {
     }
 }
     method disparar(arma,direccion){
-        if(puedeDisparar){
+        if(puedeDisparar and direccion.esMovimiento()){
       self.puedeDisparar(false)
             arma.disparar(self,direccion)
         }

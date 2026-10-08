@@ -1,4 +1,6 @@
 import wollok.game.*
+import configGenerales.*
+
 
 object arma {
   method disparar(tirador, direccionDisparo) {
@@ -39,9 +41,15 @@ class Proyectil {
   method chocarItem(item){}
   
   method avanzar() {
-    const nuevaPos = direccion.posicionSig(self)
-    if (nuevaPos == self.position()) self.destruir()
-    else self.position(nuevaPos)
+   const xSiguiente = position.x() + direccion.x()
+  const ySiguiente = position.y() + direccion.y()
+
+       if (xSiguiente < 0 or xSiguiente >= config.anchoMax() or 
+        ySiguiente < 0 or ySiguiente >= config.alturaMax()) {
+      self.destruir()
+    } else {
+      self.position(game.at(xSiguiente, ySiguiente))
+    }
   }
   
   method destruir() {
