@@ -36,6 +36,7 @@ class Proyectil {
     )
   }
   method chocarProyectil(){}
+  method chocarItem(item){}
   
   method avanzar() {
     const nuevaPos = direccion.posicionSig(self)

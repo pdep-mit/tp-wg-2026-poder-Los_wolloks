@@ -3,71 +3,29 @@ import wollok.game.*
 
 
 object movimiento {
-    method mover(personaje,direccion){
-  const nuevaPosicion= direccion.posicionSig(personaje)
-  personaje.position(nuevaPosicion)
+    method mover(objetoMovil,direccion){
+  const nuevaPosicion= direccion.posicionSig(objetoMovil)
+  objetoMovil.position(nuevaPosicion)
     }
 }
 
-object haciaArriba{
-    method posicionSig(personaje){
-        const velocidad=personaje.velocidad()
-        const posicion=personaje.position()
-        const techo=config.alturaMax()-1
+class Direccion{
+const y
+const x
+method posicionSig(objetoMovil) {
+  const posicion = objetoMovil.position()
+  const velocidad= objetoMovil.velocidad()
 
-  if (posicion.y()+ velocidad >=techo){
-    return game.at(posicion.x(),techo)
-  }
-  else{
-    return posicion.up(velocidad)
-  }
-    }
+const nuevaX = (posicion.x()+x*velocidad).limitBetween(0,config.anchoMax()-1)
+const nuevaY =(posicion.y()+y*velocidad).limitBetween(0,config.alturaMax()-1)
+
+return game.at(nuevaX, nuevaY)
+
 }
-object haciaAbajo{
-    method posicionSig(personaje){
-        const velocidad=personaje.velocidad()
-        const posicion=personaje.position()
-        const piso=0
-
-  if (posicion.y() - velocidad <=piso){
-    return game.at(posicion.x(),piso)
-  }
-  else{
-    return posicion.down(velocidad)
-  }
-    }
-}
-object haciaLaDerecha{
-    method posicionSig(personaje){
-        const velocidad=personaje.velocidad()
-        const posicion=personaje.position()
-        const limDer=config.anchoMax()-1
-
-  if (posicion.x()+ velocidad >=limDer){
-    return game.at(limDer,posicion.y())
-  }
-  else{
-    return posicion.right(velocidad)
-  }
-    }
-}
-object haciaLaIzquierda{
-    method posicionSig(personaje){
-        const velocidad=personaje.velocidad()
-        const posicion=personaje.position()
-        const limIzq=0
-
-  if (posicion.x() - velocidad <=limIzq){
-    return game.at(limIzq,posicion.y())
-  }
-  else{
-    return posicion.left(velocidad)
-  }
-    }
 }
 
-object quieto {
-    method posicionSig(personaje) {
-        return personaje.position()
-    }
-}
+object haciaArriba inherits Direccion(y=1,x=0){}
+object haciaAbajo inherits Direccion(y=-1,x=0){}
+object haciaLaDerecha inherits Direccion(y=0,x=1){}
+object haciaLaIzquierda inherits Direccion(y=0,x=-1){}
+object quieto inherits Direccion(y=0,x=0){}

@@ -44,7 +44,8 @@ method image() {
     velocidad=0
     puedeDisparar=false
     game.say(self,"Nos vemos en el recu")
-    game.schedule(2000,{game.stop()})
+    game.schedule(1000,{game.removeVisual(self)})
+    game.schedule(300,{game.stop()})
   }
 
   method ganarVida(cantidad) {
