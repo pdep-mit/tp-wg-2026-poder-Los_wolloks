@@ -12,11 +12,11 @@ object config {
   
   method tamanioCelda() = 25
   
+
   method configurarJuego() {
     self.configurarVentana()
     salaDelTesoro.cargar()
     self.agregarComponentesVisuales()
-    parcial.iniciarMov()
     self.configurarAcciones()
     game.onTick(50, "dispararEstudiante", { estadoTeclasDisparo.procesar() })
   }
@@ -29,9 +29,10 @@ object config {
   }
   
   method agregarComponentesVisuales() {
-    game.addVisual(estudiante)
-    game.addVisual(parcial)
-  }
+  game.addVisual(estudiante)
+  estudiante.agregarHitboxes()
+  parcial.aparecer() // reemplaza addVisual + agregarHitboxes + iniciarMov
+ }
   
   method configurarAcciones() {
     keyboard.w().onPressDo({ 
@@ -129,7 +130,7 @@ object salaDelTesoro {
 }
 
 object pedestal {
-  method position() = game.center()
+  method position() = game.center().left(1).down(1)
   
   method image() = "pedestal.png"
   

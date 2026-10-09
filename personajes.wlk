@@ -1,7 +1,9 @@
 import wollok.game.*
 import movimientos.*
+import estados.*
+import hitbox.*
 object estudiante {
-var property position = game.at(8,8)
+
 var property vidaMaxima = 3 
 var property vida = 3
 var property danio = 1
@@ -9,6 +11,28 @@ var property velocidad  = 1
 var property puedeDisparar = true
 var property puedeMoverse = true
 var property velocidadAtaque = 800
+
+var position = game.at(8, 8)
+var hitboxes = []
+
+method position() = position
+method position(nueva) {
+  position = nueva
+  hitboxes.forEach({ h => h.actualizar() })
+}
+
+method agregarHitboxes() {
+  hitboxes = [
+    new Hitbox(duenio = self, desplazamientoX = 1, desplazamientoY = 0),
+    new Hitbox(duenio = self, desplazamientoX = 0, desplazamientoY = 1),
+    new Hitbox(duenio = self, desplazamientoX = 1, desplazamientoY = 1)
+  ]
+  hitboxes.forEach({ h =>
+    h.actualizar()
+    game.addVisual(h)
+  })
+}
+
 method tiempoEntrePasos()=(200 - (velocidad * 20)).max(50)
 method mover(direccion) {
  
@@ -85,13 +109,38 @@ class Enemigo {
     var property vida   
     var property vidaMaxima
     var property danio
-    var property position //deberia setearse al crear el enemigo
     var property velocidad = 1
     
     var property imagenDaniado 
     var property imagenEnemigo 
     var property imagenMuerto 
     
+    var position
+    var hitboxes = []
+
+    method position() = position
+    method position(nueva) {
+    position = nueva
+    hitboxes.forEach({ h => h.actualizar() })
+    }
+
+    method agregarHitboxes() {
+    hitboxes = [
+        new Hitbox(duenio = self, desplazamientoX = 1, desplazamientoY = 0),
+        new Hitbox(duenio = self, desplazamientoX = 0, desplazamientoY = 1),
+        new Hitbox(duenio = self, desplazamientoX = 1, desplazamientoY = 1)
+    ]
+    hitboxes.forEach({ h =>
+        h.actualizar()
+        game.addVisual(h)
+    })
+    }
+
+    method sacarHitboxes() {
+    hitboxes.forEach({ h => game.removeVisual(h) })
+    hitboxes = []
+    }
+
     method iniciarMov(){
         game.onTick(500, "enemigo_persigue_" + self.identity().toString(), { self.acercarseAenemigo() })
     }
@@ -123,17 +172,23 @@ class Enemigo {
         }
     }
     
+    method estados() = [atacando, persiguiendo]
+
     method acercarseAenemigo() {
-        if (self.estaAlLadoDelEstudiante()) {
-            estudiante.chocarEnemigo(self)
-        } else {
-            movimiento.mover(self, self.direccionHorizontal())
-            movimiento.mover(self, self.direccionVertical())
-        }
+    self.estados().find({ estado => estado.aplicaA(self) }).actuar(self)
+    }
+
+    method atacar() {
+    estudiante.chocarEnemigo(self)
+    }
+
+    method perseguir() {
+    movimiento.mover(self, self.direccionHorizontal())
+    movimiento.mover(self, self.direccionVertical())
     }
 
     method estaAlLadoDelEstudiante() {
-        return position.distance(estudiante.position()) <= 1.5
+    return position.distance(estudiante.position()) <= 2
     }
 
     method direccionHorizontal() {
@@ -149,6 +204,13 @@ class Enemigo {
     }
 
     method chocarItem(item) { }
+
+    // Pone al enemigo en el juego
+    method aparecer() {
+    game.addVisual(self)
+    self.agregarHitboxes()
+    self.iniciarMov()
+}
 
 }
 const parcial = new Enemigo(
