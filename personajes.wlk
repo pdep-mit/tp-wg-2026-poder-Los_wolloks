@@ -2,39 +2,32 @@ import wollok.game.*
 import movimientos.*
 import estados.*
 import hitbox.*
+import cuerpo_personajes.*
 object estudiante {
 
-var property vidaMaxima = 3 
-var property vida = 3
-var property danio = 1
-var property velocidad  = 1
-var property puedeDisparar = true
-var property puedeMoverse = true
-var property velocidadAtaque = 800
+    var property vidaMaxima = 3 
+    var property vida = 3
+    var property danio = 1
+    var property velocidad  = 1
+    var property puedeDisparar = true
+    var property puedeMoverse = true
+    var property velocidadAtaque = 800
 
-var position = game.at(8, 8)
-var hitboxes = []
+    var position = game.at(8, 8)
 
-method position() = position
-method position(nueva) {
-  position = nueva
-  hitboxes.forEach({ h => h.actualizar() })
-}
+    method position() = position
 
-method agregarHitboxes() {
-  hitboxes = [
-    new Hitbox(duenio = self, desplazamientoX = 1, desplazamientoY = 0),
-    new Hitbox(duenio = self, desplazamientoX = 0, desplazamientoY = 1),
-    new Hitbox(duenio = self, desplazamientoX = 1, desplazamientoY = 1)
-  ]
-  hitboxes.forEach({ h =>
-    h.actualizar()
-    game.addVisual(h)
-  })
-}
+    const cuerpo = new Cuerpo(duenio = self)
 
-method tiempoEntrePasos()=(200 - (velocidad * 20)).max(50)
-method mover(direccion) {
+    method position(nueva) {
+    position = nueva
+    cuerpo.seguirA()
+    }
+
+    method agregarHitboxes() { cuerpo.agregar() }
+
+    method tiempoEntrePasos()=(200 - (velocidad * 20)).max(50)
+    method mover(direccion) {
  
     if (puedeMoverse and direccion.esMovimiento()) {
       movimiento.mover(self, direccion)
@@ -45,62 +38,63 @@ method mover(direccion) {
         self.intentarSeguirMoviendose()
       })
     }
-  }
+    }
 
-  method intentarSeguirMoviendose() {
+   method intentarSeguirMoviendose() {
   
     if (estadoTeclasMovimiento.estaActivo()) {
       self.mover(estadoTeclasMovimiento.direccionActual())
     }
-  }
-method image() {
+   }
+    method image() {
     if (vida<=vidaMaxima/3) {
         return "estudiante_danio.png"
     }
     else{
         return "estudiante.png"
     }
-}
+    }
+
     method disparar(arma,direccion){
         if(puedeDisparar and direccion.esMovimiento()){
       self.puedeDisparar(false)
             arma.disparar(self,direccion)
         }
-        
     }
+
     method finalizarRecarga(){
         self.puedeDisparar(true)
     }
+
     method chocarEnemigo(enemigo){
         self.recibirDanio(enemigo.danio())
     }
-    method chocarProyectil(proyectil){
-    
-    }
- method recibirDanio(cantidad) {
+
+    method chocarProyectil(proyectil){}
+
+    method recibirDanio(cantidad) {
         vida = 0.max(vida - cantidad) 
         
         if (vida == 0) {
             self.morir()
         }
     }
-  method morir(){
+    method morir(){
     velocidad=0
     puedeDisparar=false
     game.say(self,"Nos vemos en el recu")
     game.schedule(1000,{game.removeVisual(self)})
     game.schedule(300,{game.stop()})
-  }
+    }
 
-  method ganarVida(cantidad) {
-  vidaMaxima += cantidad
-  vida += cantidad
-}   
+    method ganarVida(cantidad) {
+    vidaMaxima += cantidad
+    vida += cantidad
+    }   
 
-  method chocarItem(item) {
+    method chocarItem(item) {
     item.chocarEstudiante(self)
-  }
-
+   }
 }
 
 
@@ -116,29 +110,14 @@ class Enemigo {
     var property imagenMuerto 
     
     var position
-    var hitboxes = []
 
     method position() = position
+
+    const cuerpo = new Cuerpo(duenio = self)
+
     method position(nueva) {
     position = nueva
-    hitboxes.forEach({ h => h.actualizar() })
-    }
-
-    method agregarHitboxes() {
-    hitboxes = [
-        new Hitbox(duenio = self, desplazamientoX = 1, desplazamientoY = 0),
-        new Hitbox(duenio = self, desplazamientoX = 0, desplazamientoY = 1),
-        new Hitbox(duenio = self, desplazamientoX = 1, desplazamientoY = 1)
-    ]
-    hitboxes.forEach({ h =>
-        h.actualizar()
-        game.addVisual(h)
-    })
-    }
-
-    method sacarHitboxes() {
-    hitboxes.forEach({ h => game.removeVisual(h) })
-    hitboxes = []
+    cuerpo.seguirA()
     }
 
     method iniciarMov(){
@@ -208,7 +187,6 @@ class Enemigo {
     // Pone al enemigo en el juego
     method aparecer() {
     game.addVisual(self)
-    self.agregarHitboxes()
     self.iniciarMov()
 }
 
