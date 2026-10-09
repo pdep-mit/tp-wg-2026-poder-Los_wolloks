@@ -6,11 +6,11 @@ import items.*
 
 
 object config {
-  method anchoMax() = 15
+  method anchoMax() = 30
   
-  method alturaMax() = 11
+  method alturaMax() = 22
   
-  method tamanioCelda() = 50
+  method tamanioCelda() = 25
   
   method configurarJuego() {
     self.configurarVentana()
@@ -112,7 +112,7 @@ object salaDelTesoro {
   method fondo() = "sala-del-tesoro.png"
   
   // el item flota una celda arriba del pedestal
-  method posicionDelItem() = pedestal.position().up(1)
+  method posicionDelItem() = pedestal.position().up(2)
   
   method cargar() {
     game.boardGround(self.fondo())

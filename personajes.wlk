@@ -1,7 +1,7 @@
 import wollok.game.*
 import movimientos.*
 object estudiante {
-var property position = game.at(4,4)
+var property position = game.at(8,8)
 var property vidaMaxima = 3 
 var property vida = 3
 var property danio = 1
@@ -93,7 +93,7 @@ class Enemigo {
     var property imagenMuerto 
     
     method iniciarMov(){
-        game.onTick(1000, "enemigo_persigue_" + self.identity().toString(), { self.acercarseAenemigo() })
+        game.onTick(500, "enemigo_persigue_" + self.identity().toString(), { self.acercarseAenemigo() })
     }
     method chocarProyectil(proyectil){
     self.recibirDanio(proyectil.danio())
@@ -155,7 +155,7 @@ const parcial = new Enemigo(
     vida = 5, 
     vidaMaxima = 5,
     danio = 0.5,
-    position = game.at(7,8), 
+    position = game.at(14,16), 
     imagenDaniado = "parcialDaniado.png", 
     imagenEnemigo = "parcial.png", 
     imagenMuerto = "parcialMuerto.png"
