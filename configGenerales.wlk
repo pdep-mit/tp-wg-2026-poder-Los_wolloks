@@ -3,6 +3,7 @@ import personajes.*
 import movimientos.*
 import disparos.*
 import items.*
+import obstaculos.*
 
 
 object config {
