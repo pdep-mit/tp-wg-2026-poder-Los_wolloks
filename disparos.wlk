@@ -26,7 +26,7 @@ class Proyectil {
   
   method iniciarMov() {
     game.onTick(
-      200,
+      100,
       "lagrima_nro_" + self.identity().toString(),
       { self.avanzar() }
     )
