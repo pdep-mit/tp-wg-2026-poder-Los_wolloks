@@ -6,17 +6,17 @@ import items.*
 
 
 object config {
-  method anchoMax() = 15
+  method anchoMax() = 30
   
-  method alturaMax() = 11
+  method alturaMax() = 22
   
-  method tamanioCelda() = 50
+  method tamanioCelda() = 25
   
+
   method configurarJuego() {
     self.configurarVentana()
     salaDelTesoro.cargar()
     self.agregarComponentesVisuales()
-    parcial.iniciarMov()
     self.configurarAcciones()
     game.onTick(50, "dispararEstudiante", { estadoTeclasDisparo.procesar() })
   }
@@ -29,9 +29,10 @@ object config {
   }
   
   method agregarComponentesVisuales() {
-    game.addVisual(estudiante)
-    game.addVisual(parcial)
-  }
+  game.addVisual(estudiante)
+  estudiante.agregarHitboxes()
+  parcial.aparecer() // reemplaza addVisual + agregarHitboxes + iniciarMov
+ }
   
   method configurarAcciones() {
     keyboard.w().onPressDo({ 
@@ -112,7 +113,7 @@ object salaDelTesoro {
   method fondo() = "sala-del-tesoro.png"
   
   // el item flota una celda arriba del pedestal
-  method posicionDelItem() = pedestal.position().up(1)
+  method posicionDelItem() = pedestal.position().up(2)
   
   method cargar() {
     game.boardGround(self.fondo())
@@ -129,7 +130,7 @@ object salaDelTesoro {
 }
 
 object pedestal {
-  method position() = game.center()
+  method position() = game.center().left(1).down(1)
   
   method image() = "pedestal.png"
   

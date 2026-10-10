@@ -7,7 +7,7 @@ object mensajeItem {
   var numero = 0
 
   method textColor() = "FFFFFF"
-  method position() = game.at(game.center().x(), game.height() - 1)
+  method position() = game.at(game.center().x(), game.height() - 2)
 
   method mostrar(titulo, descripcion) {
     text = titulo + " " + descripcion
