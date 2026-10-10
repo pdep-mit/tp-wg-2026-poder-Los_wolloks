@@ -2,6 +2,7 @@ import wollok.game.*
 import movimientos.*
 import personajes.*
 import hitbox.*
+import cuerpo_personajes.*
 
 
  
@@ -11,13 +12,18 @@ class Obstaculo {
   var estaDestruido = false
 
   method esSolido() = not estaDestruido // Si no esta destruido no te deja pasar
+  const cuerpo = new Cuerpo(duenio = self)
   
+  method inicializar(){
+    cuerpo.agregar() //agrega la hitbox 
+  }
   method image()
 
   method desaparecer() {
     game.schedule(500, {
       if (game.hasVisual(self)) {
-        game.removeVisual(self)
+        cuerpo.sacar() 
+        game.removeVisual(self) 
       }
     })
   }
@@ -39,17 +45,17 @@ class Obstaculo {
 
   method chocarEnemigo(enemigo) {}
 
-  method chocarPersonaje(personaje) {
+  method chocarEstudiante(estudiante) {
     if (not estaDestruido) {
-      self.efecto(personaje)
+      self.efecto(estudiante)
     }
   }
 
-  method efecto(personaje) {}
+  method efecto(estudiante) {}
 }
 //bancos -cajas de resumenes/archivos, pizzaron, dispenser de agua(explota)-estacion de carga sube
 // que efectos podrian causar?
-class Banco inherits Obstaculo{
+class Banco inherits Obstaculo(vida = 10){
   const img_obstaculo = "banco.png"
   const img_obstaculo_roto = "banco_roto.png"
 

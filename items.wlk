@@ -37,7 +37,7 @@ class ItemPedestal {
   method titulo()
   method descripcion()
   method efecto(personaje)
-
+  method esSolido() = false
   // los disparos pasan de largo por el item
   method chocarProyectil(proyectil) { }
 

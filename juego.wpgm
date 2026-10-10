@@ -4,4 +4,4 @@
    program Juego {
      config.configurarJuego()
      game.start()
-   }
+   }  

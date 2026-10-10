@@ -16,7 +16,7 @@ object estudiante {
     var position = game.at(8, 8)
 
     method position() = position
-
+    method esSolido() = false
     const cuerpo = new Cuerpo(duenio = self)
 
     method position(nueva) {
@@ -69,6 +69,7 @@ object estudiante {
     method chocarEnemigo(enemigo){
         self.recibirDanio(enemigo.danio())
     }
+    method chocarEstudiante(){}
 
     method chocarProyectil(proyectil){}
 
@@ -112,7 +113,7 @@ class Enemigo {
     var position
 
     method position() = position
-
+    method esSolido() = false
     const cuerpo = new Cuerpo(duenio = self)
 
     method position(nueva) {
@@ -124,8 +125,8 @@ class Enemigo {
         game.onTick(500, "enemigo_persigue_" + self.identity().toString(), { self.acercarseAenemigo() })
     }
     method chocarProyectil(proyectil){
-    self.recibirDanio(proyectil.danio())
-    proyectil.destruir()
+        self.recibirDanio(proyectil.danio())
+        proyectil.destruir()
     }
     method recibirDanio(cantidad) {
         vida = 0.max(vida - cantidad) 

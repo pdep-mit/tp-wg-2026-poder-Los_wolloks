@@ -1,3 +1,4 @@
+import configGenerales.*
 import wollok.game.*
 import hitbox.*
 
@@ -7,10 +8,19 @@ class Cuerpo {
 
   method agregar() {
     hitboxes = [
-      new Hitbox(duenio = duenio, desplazamientoX = 1, desplazamientoY = 0),
-      new Hitbox(duenio = duenio, desplazamientoX = 0, desplazamientoY = 1),
-      new Hitbox(duenio = duenio, desplazamientoX = 1, desplazamientoY = 1)
-    ]
+        new Hitbox(duenio = duenio, desplazamientoX = -1,  desplazamientoY = 1),
+        new Hitbox(duenio = duenio, desplazamientoX = 0,  desplazamientoY = 1),
+        new Hitbox(duenio = duenio, desplazamientoX = 1,  desplazamientoY = 1),
+
+        new Hitbox(duenio = duenio, desplazamientoX = -1 , desplazamientoY = 0),
+        new Hitbox(duenio = duenio, desplazamientoX = 1,  desplazamientoY = 0),
+
+        new Hitbox(duenio = duenio, desplazamientoX = -1,  desplazamientoY = -1),
+        new Hitbox(duenio = duenio, desplazamientoX = 0,  desplazamientoY = -1),
+        new Hitbox(duenio = duenio, desplazamientoX = 1,  desplazamientoY = -1)
+      ]
+
+
     hitboxes.forEach({ h =>
       h.actualizar()
       game.addVisual(h)

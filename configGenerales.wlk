@@ -127,14 +127,26 @@ object salaDelTesoro {
     ].anyOne()
     game.addVisual(item)
     game.whenCollideDo(item, { otro => otro.chocarItem(item) })
+
+    const bancos = [
+     new Banco(position = game.at(config.anchoMax()-2,13)),
+     new Banco(position = game.at(config.anchoMax()-2,11)),
+     new Banco(position = game.at(config.anchoMax()-2,9)),
+     new Banco(position = game.at(config.anchoMax()-2,7))
+    ]
+    bancos.forEach{banco => game.addVisual(banco)  banco.inicializar()} //agrega las hitbox de los obstaculos
+    
+    
+
   }
 }
 
-object pedestal {
+object pedestal { //deberia ser obstaculo?
   method position() = game.center().left(1).down(1)
   
   method image() = "pedestal.png"
-  
+  method esSolido() = true
+  method chocarEstudiante(){}
   method chocarProyectil(proyectil) {
     proyectil.destruir()
   }

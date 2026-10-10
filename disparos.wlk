@@ -23,7 +23,7 @@ class Proyectil {
    var property danio
   
   method image() = "lagrima.png"
-  
+  method esSolido() = false 
   method iniciarMov() {
     game.onTick(
       100,
@@ -37,7 +37,7 @@ class Proyectil {
           }
     )
   }
-  method chocarProyectil(){}
+  method chocarProyectil(proyectil){}
   method chocarItem(item){}
   
   method avanzar() {

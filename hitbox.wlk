@@ -11,8 +11,9 @@ class Hitbox {
   method actualizar() {
     position = duenio.position().right(desplazamientoX).up(desplazamientoY)
   }
-
+  method esSolido() = duenio.esSolido()
   // delegan al original como explico el poderosisimo rasta con el bounding box o algo asi
+  method chocarEstudiante(estudiante){duenio.chocarEstudiante(estudiante)}
   method chocarProyectil(proyectil) { duenio.chocarProyectil(proyectil) }
   method chocarEnemigo(enemigo) { duenio.chocarEnemigo(enemigo) }
   method chocarItem(item) { duenio.chocarItem(item) }
