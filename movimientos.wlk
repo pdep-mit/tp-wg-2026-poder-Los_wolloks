@@ -6,9 +6,21 @@ import disparos.*
 
 
 object movimiento {
-    method mover(objetoMovil,direccion){
-  const nuevaPosicion= direccion.posicionSig(objetoMovil)
-  objetoMovil.position(nuevaPosicion)
+    method mover(objetoMovil, direccion) {
+        if (direccion == null) {objetoMovil.position()}
+
+        const nuevaPosicion = direccion.posicionSig(objetoMovil)
+
+        const dentroDelTablero = nuevaPosicion.x().between(0, config.anchoMax() - 1) 
+                              and nuevaPosicion.y().between(0, config.alturaMax() - 1)
+
+        if (dentroDelTablero) {
+            const haySolido = game.getObjectsIn(nuevaPosicion).any({ obj => obj.esSolido() })
+
+            if (not haySolido) {
+                objetoMovil.position(nuevaPosicion)
+            }
+        }
     }
 }
 

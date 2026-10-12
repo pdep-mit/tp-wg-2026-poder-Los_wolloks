@@ -1,6 +1,7 @@
 import wollok.game.*
 import hitbox.*
 
+
 class Cuerpo {
   const duenio
   var hitboxes = []
@@ -13,7 +14,7 @@ class Cuerpo {
     ]
     hitboxes.forEach({ h =>
       h.actualizar()
-      game.addVisual(h)
+
     })
   }
 

@@ -7,7 +7,7 @@ class Hitbox {
   var property position = game.origin()
 
   method image() = "vacio.png"
-
+  method esSolido() = false
   method actualizar() {
     position = duenio.position().right(desplazamientoX).up(desplazamientoY)
   }

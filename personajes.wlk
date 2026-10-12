@@ -14,7 +14,7 @@ object estudiante {
     var property velocidadAtaque = 800
 
     var position = game.at(8, 8)
-
+    method esSolido() = false
     method position() = position
 
     const cuerpo = new Cuerpo(duenio = self)
@@ -106,13 +106,13 @@ class Enemigo {
     var property velocidad = 1
     
     var property imagenDaniado 
-    var property imagenEnemigo 
+    var property imagenBase
     var property imagenMuerto 
     
     var position
 
     method position() = position
-
+    method esSolido() = false
     const cuerpo = new Cuerpo(duenio = self)
 
     method position(nueva) {
@@ -147,7 +147,7 @@ class Enemigo {
         } else if (vida <= vidaMaxima / 3) {
             return imagenDaniado
         } else {
-            return imagenEnemigo
+            return imagenBase
         }
     }
     
@@ -197,7 +197,7 @@ const parcial = new Enemigo(
     danio = 0.5,
     position = game.at(14,16), 
     imagenDaniado = "parcialDaniado.png", 
-    imagenEnemigo = "parcial.png", 
+    imagenBase = "parcial.png", 
     imagenMuerto = "parcialMuerto.png"
 )
 
