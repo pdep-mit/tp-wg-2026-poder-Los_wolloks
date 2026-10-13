@@ -143,7 +143,7 @@ object salaDelTesoro {
 
 object pedestal {
   method position() = game.center().left(1).down(1)
-
+  method esSolido() = false
   method image() = "pedestal.png"
   
   method chocarProyectil(proyectil) {
