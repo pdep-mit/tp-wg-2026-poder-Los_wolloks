@@ -20,8 +20,8 @@ method posicionSig(objetoMovil) {
   const posicion = objetoMovil.position()
   const velocidad= objetoMovil.velocidad()
 
-const nuevaX = (posicion.x()+x).limitBetween(0,config.anchoMax()-1)
-const nuevaY =(posicion.y()+y).limitBetween(0,config.alturaMax()-1)
+const nuevaX = (posicion.x()+x).limitBetween(0,config.anchoMax()-2)
+const nuevaY =(posicion.y()+y).limitBetween(0,config.alturaMax()-2)
 
 return game.at(nuevaX, nuevaY)
 
