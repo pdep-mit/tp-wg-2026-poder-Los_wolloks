@@ -3,6 +3,7 @@ import movimientos.*
 import estados.*
 import hitbox.*
 import cuerpo_personajes.*
+import hud.*
 object estudiante {
 
     var property vidaMaxima = 3 
@@ -90,6 +91,7 @@ object estudiante {
     method ganarVida(cantidad) {
     vidaMaxima += cantidad
     vida += cantidad
+      hud.actualizarCorazanes()
     }   
 
     method chocarItem(item) {

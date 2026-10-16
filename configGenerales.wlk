@@ -3,6 +3,8 @@ import personajes.*
 import movimientos.*
 import disparos.*
 import items.*
+import hud.*
+
 
 
 object config {
@@ -31,7 +33,8 @@ object config {
   method agregarComponentesVisuales() {
   game.addVisual(estudiante)
   estudiante.agregarHitboxes()
-  parcial.aparecer() // reemplaza addVisual + agregarHitboxes + iniciarMov
+  parcial.aparecer() 
+  hud.cargarCorazones()
  }
   
   method configurarAcciones() {
@@ -119,7 +122,7 @@ object salaDelTesoro {
     game.boardGround(self.fondo())
     game.addVisual(pedestal)
     
-    const item = [
+    const item =[
       new ConstanciaAprobado(position = self.posicionDelItem()),
       new ApuntesWollok(position = self.posicionDelItem()),
       new CafeDelBuffet(position = self.posicionDelItem())
