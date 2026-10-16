@@ -28,6 +28,8 @@ object estudiante {
     method agregarHitboxes() { cuerpo.agregar() }
 
     method tiempoEntrePasos()=(200 - (velocidad * 20)).max(50)
+    method seMueveParaLaderecha()=estadoTeclasMovimiento.x()==1
+    
     method mover(direccion) {
  
     if (puedeMoverse and direccion.esMovimiento()) {
@@ -47,14 +49,15 @@ object estudiante {
       self.mover(estadoTeclasMovimiento.direccionActual())
     }
    }
-    method image() {
-    if (vida<=vidaMaxima/3) {
-        return "estudiante_danio.png"
-    }
-    else{
-        return "estudiante.png"
-    }
-    }
+  method image() {
+    if (vida == 0) return "estudiante_muerto.png"
+    
+    return "estudiante" + self.sufijoSalud() + self.sufijoDireccion() + ".png"
+  }
+
+  method sufijoSalud() = if (vida <= vidaMaxima / 3) "_daniado" else ""
+  
+  method sufijoDireccion() = if (self.seMueveParaLaderecha()) "_der" else "_izq"
 
     method disparar(arma,direccion){
         if(puedeDisparar and direccion.esMovimiento()){

@@ -58,9 +58,9 @@ class EstadoTeclas {
 object estadoTeclasMovimiento inherits EstadoTeclas {
   method procesar() {
     self.ejecutarConBuffer({ estudiante.mover(self.direccionActual())})
+    
   }
 }
-
 object estadoTeclasDisparo inherits EstadoTeclas {
   method procesar() {
  self.ejecutarConBuffer({ estudiante.disparar(arma, self.direccionActual()) })

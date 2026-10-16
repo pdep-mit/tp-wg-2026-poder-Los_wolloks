@@ -10,7 +10,7 @@ const vidaActual = estudiante.vida()
     if (vidaActual >= indice) {
       return "corazonlleno.png"
     } else if (vidaActual >= indice - 0.5) {
-      return "corazonmedio.png"
+      return "corazonporlamitad.png"
     } else {
       return "corazonvacio.png"}
 }
