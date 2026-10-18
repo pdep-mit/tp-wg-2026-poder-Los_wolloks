@@ -4,7 +4,6 @@ import estados.*
 import hitbox.*
 import cuerpo_personajes.*
 import hud.*
-import mapa.*
 import disparos.*
 object estudiante {
 
@@ -15,6 +14,8 @@ object estudiante {
     var property puedeDisparar = true
     var property puedeMoverse = true
     var property velocidadAtaque = 800
+    var property estaDisparando = false
+    var property direccionDisparo = null
 
     var position = game.at(8, 8)
 
@@ -52,15 +53,16 @@ object estudiante {
       self.mover(estadoTeclasMovimiento.direccionActual())
     }
    }
-  method image() {
-    if (vida == 0) return "estudiante_muerto.png"
-    
-    return "estudiante" + self.sufijoSalud() + self.sufijoDireccion() + ".png"
-  }
 
-  method sufijoSalud() = if (vida <= vidaMaxima / 3) "_daniado" else ""
-  
-  method sufijoDireccion() = if (self.seMueveParaLaderecha()) "_der" else "_izq"
+    method image() {
+    if (vida == 0) return "estudiante_muerto.png"
+
+    return "estudiante" + self.sufijoSalud() + self.sufijoDireccion() + ".png"
+    }
+
+    method sufijoSalud() = if (vida <= vidaMaxima / 3) "_daniado" else ""
+
+    method sufijoDireccion() = if (self.seMueveParaLaderecha()) "_der" else "_izq"
 
     method disparar(arma,direccion){
         if(puedeDisparar and direccion.esMovimiento()){
@@ -232,9 +234,72 @@ class Enemigo {
 }
 
 }
-// Enemigo que persigue al estudiante (usa los estados por defecto: atacando / persiguiendo)
-class ParcialFuncional inherits Enemigo(
-    vida = 5,
+
+class EnemigoTirador inherits Enemigo {
+  override method iniciarMov() {
+    game.onTick(1000, "enemigo_persigue_" + self.identity().toString(), { self.acercarseAenemigo() })
+    game.onTick(2500, "enemigo_dispara_" + self.identity().toString(), { self.disparar() })
+  }
+
+  method disparar() {
+    const bala = new ProyectilEnemigo(
+      position = self.position(),
+      direccion = self.direccionDeDisparo(),
+      danio = self.danio()
+    )
+    game.addVisual(bala)
+    bala.iniciarMov()
+  }
+
+  method direccionDeDisparo() {
+  const dx = estudiante.position().x() - self.position().x()
+  const dy = estudiante.position().y() - self.position().y()
+  const pasoX = if (dx.abs() * 2 >= dy.abs()) self.signo(dx) else 0
+  const pasoY = if (dy.abs() * 2 >= dx.abs()) self.signo(dy) else 0
+  return new DireccionLibre(x = pasoX, y = pasoY)
+ }
+
+method signo(numero) = if (numero > 0) 1 else if (numero < 0) -1 else 0
+
+  override method morir() {
+    game.removeTickEvent("enemigo_dispara_" + self.identity().toString())
+    super()
+  }
+}
+
+class EnemigoDivisible inherits Enemigo {
+  const nivel
+  var yaSeDividio = false
+
+  override method morir() {
+    if (not yaSeDividio) {
+      yaSeDividio = true
+      if (nivel > 1) { self.dividirse() }
+    }
+    super()
+  }
+
+    const separacion = 3
+
+   method dividirse() {
+    self.hijoEn(self.position().left(separacion)).aparecer()
+    self.hijoEn(self.position().right(separacion)).aparecer()
+    }
+
+  method hijoEn(posicion) = new EnemigoDivisible(
+    nivel = nivel - 1,
+    vida = self.vidaMaxima() / 2,
+    vidaMaxima = self.vidaMaxima() / 2,
+    danio = self.danio() / 2,
+    position = posicion,
+    imagenEnemigo = "parcialChico.png",
+    imagenDaniado = "parcialChicoDaniado.png",
+    imagenMuerto = "parcialChicoMuerto.png"
+  )
+}
+
+const parcial = new Enemigo(
+    vida = 5, 
     vidaMaxima = 5,
     danio = 0.5,
     imagenDaniado = "parcialDaniado.png",
@@ -267,14 +332,23 @@ class ParcialProlog inherits Enemigo(
         }
     }
 
-    method direccionAlEstudiante() {
-        const dx = estudiante.position().x() - self.position().x()
-        const dy = estudiante.position().y() - self.position().y()
-        if (dx.abs() >= dy.abs()) {
-            if (dx >= 0) { return haciaLaDerecha }
-            return haciaLaIzquierda
-        }
-        if (dy >= 0) { return haciaArriba }
-        return haciaAbajo
-    }
-}
+const parcialTirador = new EnemigoTirador(
+    vida = 4,
+    vidaMaxima = 4,
+    danio = 0.5,
+    position = game.at(3, 12),
+    imagenDaniado = "parcialTiradorDaniado.png",
+    imagenEnemigo = "parcialTirador.png",
+    imagenMuerto = "parcialTiradorMuerto.png"
+)
+
+const parcialDivisible = new EnemigoDivisible(
+    nivel = 2,
+    vida = 6,
+    vidaMaxima = 6,
+    danio = 0.5,
+    position = game.at(10, 8),
+    imagenDaniado = "parcialDivisibleDaniado.png",
+    imagenEnemigo = "parcialDivisible.png",
+    imagenMuerto = "parcialDivisibleMuerto.png"
+)

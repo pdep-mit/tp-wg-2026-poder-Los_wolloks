@@ -1,6 +1,6 @@
 import wollok.game.*
 import configGenerales.*
-
+import personajes.*
 
 object arma {
   // colección de proyectiles en pantalla (para limpiarlos al cambiar de sala)
@@ -38,35 +38,37 @@ class Proyectil {
   var activo = true
   
   method image() = "lagrima.png"
-  
+
   method iniciarMov() {
     game.onTick(
       60,
       "lagrima_nro_" + self.identity().toString(),
       { self.avanzar() }
     )
+    self.detectarChoques()
+  }
+
+  method detectarChoques() {
     game.onCollideDo(
       self,
-      { objetoChoque => 
-          objetoChoque.chocarProyectil(self)
-          }
+      { objetoChoque => objetoChoque.chocarProyectil(self) }
     )
   }
   method chocarProyectil(otroProyectil){}
   method chocarItem(item){}
   
   method avanzar() {
-   const xSiguiente = position.x() + direccion.x()
-  const ySiguiente = position.y() + direccion.y()
+    const xSiguiente = position.x() + direccion.x()
+    const ySiguiente = position.y() + direccion.y()
 
-       if (xSiguiente < 0 or xSiguiente >= config.anchoMax() or 
+    if (xSiguiente < 0 or xSiguiente >= config.anchoMax() or
         ySiguiente < 0 or ySiguiente >= config.alturaMax()) {
       self.destruir()
     } else {
       self.position(game.at(xSiguiente, ySiguiente))
     }
   }
-  
+
   method destruir() {
     if (activo) {
       activo = false
@@ -75,4 +77,22 @@ class Proyectil {
       game.removeTickEvent("lagrima_nro_" + self.identity().toString())
     }
   }
+}
+
+class ProyectilEnemigo inherits Proyectil {
+  override method image() = "balaEnemiga.png"
+
+  override method detectarChoques() { }
+
+  override method avanzar() {
+    super()
+    if (game.hasVisual(self) and position == estudiante.position()) {
+      estudiante.chocarEnemigo(self)
+      self.destruir()
+    }
+  }
+}
+class DireccionLibre {
+  const property x
+  const property y
 }
