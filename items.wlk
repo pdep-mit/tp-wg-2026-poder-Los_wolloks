@@ -33,6 +33,8 @@ class ItemPedestal {
   var property position
   var agarrado = false
 
+  method fueAgarrado() = agarrado
+
   method image()
   method titulo()
   method descripcion()
