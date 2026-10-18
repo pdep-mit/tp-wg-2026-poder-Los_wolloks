@@ -31,11 +31,11 @@ object config {
   }
   
   method agregarComponentesVisuales() {
-  game.addVisual(estudiante)
-  estudiante.agregarHitboxes()
-  parcial.aparecer() 
-  hud.cargarCorazones()
- }
+    game.addVisual(estudiante)
+    estudiante.agregarHitboxes()
+    parcialDivisible.aparecer()
+    hud.cargarCorazones()
+  }
   
   method configurarAcciones() {
     keyboard.w().onPressDo({ 
