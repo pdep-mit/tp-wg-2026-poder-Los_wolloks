@@ -4,6 +4,7 @@ import movimientos.*
 import disparos.*
 import items.*
 import hud.*
+import mapa.*
 
 
 
@@ -17,10 +18,14 @@ object config {
 
   method configurarJuego() {
     self.configurarVentana()
-    salaDelTesoro.cargar()
+    mapa.iniciar()
     self.agregarComponentesVisuales()
     self.configurarAcciones()
-    game.onTick(50, "dispararEstudiante", { estadoTeclasDisparo.procesar() })
+    game.onTick(50, "dispararEstudiante", {
+      if (estadoTeclasDisparo.estaActivo()) {
+        estadoTeclasDisparo.procesar()
+      }
+    })
   }
   
   method configurarVentana() {
@@ -33,7 +38,6 @@ object config {
   method agregarComponentesVisuales() {
   game.addVisual(estudiante)
   estudiante.agregarHitboxes()
-  parcial.aparecer() 
   hud.cargarCorazones()
  }
   
@@ -109,35 +113,5 @@ object config {
       estadoTeclasDisparo.modificarX(1)
       estadoTeclasDisparo.procesar()
     })
-  }
-}
-
-object salaDelTesoro {
-  method fondo() = "sala-del-tesoro.png"
-  
-  // el item flota una celda arriba del pedestal
-  method posicionDelItem() = pedestal.position().up(2)
-  
-  method cargar() {
-    game.boardGround(self.fondo())
-    game.addVisual(pedestal)
-    
-    const item =[
-      new ConstanciaAprobado(position = self.posicionDelItem()),
-      new ApuntesWollok(position = self.posicionDelItem()),
-      new CafeDelBuffet(position = self.posicionDelItem())
-    ].anyOne()
-    game.addVisual(item)
-    game.whenCollideDo(item, { otro => otro.chocarItem(item) })
-  }
-}
-
-object pedestal {
-  method position() = game.center().left(1).down(1)
-  
-  method image() = "pedestal.png"
-  
-  method chocarProyectil(proyectil) {
-    proyectil.destruir()
   }
 }

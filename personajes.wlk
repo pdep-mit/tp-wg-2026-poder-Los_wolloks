@@ -4,6 +4,8 @@ import estados.*
 import hitbox.*
 import cuerpo_personajes.*
 import hud.*
+import mapa.*
+import disparos.*
 object estudiante {
 
     var property vidaMaxima = 3 
@@ -34,6 +36,7 @@ object estudiante {
  
     if (puedeMoverse and direccion.esMovimiento()) {
       movimiento.mover(self, direccion)
+      mapa.revisarPuertas()
       puedeMoverse = false
       
       game.schedule(self.tiempoEntrePasos(), {
@@ -74,7 +77,15 @@ object estudiante {
         self.recibirDanio(enemigo.danio())
     }
 
-    method chocarProyectil(proyectil){}
+    method disparaContraEstudiante() = false
+
+    // solo lo lastiman los proyectiles de los enemigos
+    method chocarProyectil(proyectil){
+        if (proyectil.contraEstudiante()) {
+            self.recibirDanio(proyectil.danio())
+            proyectil.destruir()
+        }
+    }
 
     method recibirDanio(cantidad) {
         vida = 0.max(vida - cantidad) 
@@ -125,25 +136,48 @@ class Enemigo {
     cuerpo.seguirA()
     }
 
+    var enEscena = false
+
+    method nombreTick() = "enemigo_persigue_" + self.identity().toString()
+
     method iniciarMov(){
-        game.onTick(500, "enemigo_persigue_" + self.identity().toString(), { self.acercarseAenemigo() })
+        game.onTick(500, self.nombreTick(), { self.acercarseAenemigo() })
     }
+
+    method disparaContraEstudiante() = true
+    // solo lo lastiman los proyectiles del estudiante
     method chocarProyectil(proyectil){
-    self.recibirDanio(proyectil.danio())
-    proyectil.destruir()
+        if (!proyectil.contraEstudiante()) {
+            self.recibirDanio(proyectil.danio())
+            proyectil.destruir()
+        }
     }
+    method estaMuerto() = vida == 0
+
     method recibirDanio(cantidad) {
-        vida = 0.max(vida - cantidad) 
-        
-        if (vida == 0) {
-            self.morir()
+        if (!self.estaMuerto()) {
+            vida = 0.max(vida - cantidad)
+            if (self.estaMuerto()) {
+                self.morir()
+            }
         }
     }
     
     method morir() {
-        game.removeTickEvent("enemigo_persigue_" + self.identity().toString())
-        
-        game.schedule(800, { game.removeVisual(self) })
+        game.removeTickEvent(self.nombreTick())
+        game.schedule(800, { self.retirar() })
+    }
+
+    // Saca al enemigo del juego (al morir o al cambiar de sala)
+    method retirar() {
+        if (enEscena) {
+            if (!self.estaMuerto()) {
+                game.removeTickEvent(self.nombreTick())
+            }
+            cuerpo.sacar()
+            game.removeVisual(self)
+            enEscena = false
+        }
     }
     
     method image() {
@@ -192,17 +226,55 @@ class Enemigo {
     // Pone al enemigo en el juego
     method aparecer() {
     game.addVisual(self)
+    cuerpo.agregar()
+    enEscena = true
     self.iniciarMov()
 }
 
 }
-const parcial = new Enemigo(
-    vida = 5, 
+// Enemigo que persigue al estudiante (usa los estados por defecto: atacando / persiguiendo)
+class ParcialFuncional inherits Enemigo(
+    vida = 5,
     vidaMaxima = 5,
     danio = 0.5,
-    position = game.at(14,16), 
-    imagenDaniado = "parcialDaniado.png", 
-    imagenEnemigo = "parcial.png", 
+    imagenDaniado = "parcialDaniado.png",
+    imagenEnemigo = "parcial.png",
     imagenMuerto = "parcialMuerto.png"
-)
+) { }
 
+// Enemigo que no se mueve: dispara hacia donde está el estudiante
+class ParcialProlog inherits Enemigo(
+    vida = 3,
+    vidaMaxima = 3,
+    danio = 0.5,
+    imagenDaniado = "parcialDaniado.png",
+    imagenEnemigo = "parcial.png",
+    imagenMuerto = "parcialMuerto.png"
+) {
+    var property velocidadAtaque = 1500
+    var puedeDisparar = true
+
+    override method estados() = [disparando]
+
+    method finalizarRecarga() {
+        puedeDisparar = true
+    }
+
+    method disparar() {
+        if (puedeDisparar) {
+            puedeDisparar = false
+            arma.disparar(self, self.direccionAlEstudiante())
+        }
+    }
+
+    method direccionAlEstudiante() {
+        const dx = estudiante.position().x() - self.position().x()
+        const dy = estudiante.position().y() - self.position().y()
+        if (dx.abs() >= dy.abs()) {
+            if (dx >= 0) { return haciaLaDerecha }
+            return haciaLaIzquierda
+        }
+        if (dy >= 0) { return haciaArriba }
+        return haciaAbajo
+    }
+}
