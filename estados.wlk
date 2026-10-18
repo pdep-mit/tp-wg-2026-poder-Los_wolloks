@@ -7,3 +7,8 @@ object persiguiendo {
   method aplicaA(enemigo) = true
   method actuar(enemigo) { enemigo.perseguir() }
 }
+
+object disparando {
+  method aplicaA(enemigo) = true
+  method actuar(enemigo) { enemigo.disparar() }
+}

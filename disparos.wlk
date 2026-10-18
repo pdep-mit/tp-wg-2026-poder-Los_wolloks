@@ -3,16 +3,29 @@ import configGenerales.*
 
 
 object arma {
+  // colección de proyectiles en pantalla (para limpiarlos al cambiar de sala)
+  const proyectilesActivos = []
+
   method disparar(tirador, direccionDisparo) {
     const recarga = tirador.velocidadAtaque()
     const nuevaLagrima = new Proyectil(
       position = tirador.position(),
       direccion = direccionDisparo,
-      danio = tirador.danio()
+      danio = tirador.danio(),
+      contraEstudiante = tirador.disparaContraEstudiante()
     )
+    proyectilesActivos.add(nuevaLagrima)
     game.addVisual(nuevaLagrima)
     nuevaLagrima.iniciarMov()
     game.schedule(recarga, { tirador.finalizarRecarga() })
+  }
+
+  method olvidar(proyectil) {
+    proyectilesActivos.remove(proyectil)
+  }
+
+  method limpiar() {
+    proyectilesActivos.map({ proyectil => proyectil }).forEach({ proyectil => proyectil.destruir() })
   }
 }
 
@@ -21,12 +34,14 @@ class Proyectil {
   var property direccion
   var property velocidad = 1
    var property danio
+  var property contraEstudiante = false
+  var activo = true
   
   method image() = "lagrima.png"
   
   method iniciarMov() {
     game.onTick(
-      100,
+      60,
       "lagrima_nro_" + self.identity().toString(),
       { self.avanzar() }
     )
@@ -37,7 +52,7 @@ class Proyectil {
           }
     )
   }
-  method chocarProyectil(){}
+  method chocarProyectil(otroProyectil){}
   method chocarItem(item){}
   
   method avanzar() {
@@ -53,7 +68,11 @@ class Proyectil {
   }
   
   method destruir() {
-    game.removeVisual(self)
-    game.removeTickEvent("lagrima_nro_" + self.identity().toString())
+    if (activo) {
+      activo = false
+      arma.olvidar(self)
+      game.removeVisual(self)
+      game.removeTickEvent("lagrima_nro_" + self.identity().toString())
+    }
   }
 }
