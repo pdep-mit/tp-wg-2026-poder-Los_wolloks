@@ -5,24 +5,26 @@ import disparos.*
 import configGenerales.*
 
 // ------------------------------------------------------------
-// Puerta: objeto en el borde de una sala que lleva a otra sala.
-// Está cerrada hasta que se aprueba a todos los parciales de su sala.
+// Puerta: salida en el borde de una sala que lleva a otra sala.
+// Se dibuja como una flecha hacia donde se sale, y como una cruz
+// mientras esté cerrada (hasta aprobar a todos los parciales de su sala).
 // ------------------------------------------------------------
 class Puerta {
   const property position
   const destino
   const aparecerEn
   const origen
+  const imagenAbierta
 
-  method image() = "puerta.png"
+  method image() = if (self.estaAbierta()) imagenAbierta else "cruz.png"
 
   method estaAbierta() = origen.estaLimpia()
 
-  // el estudiante ocupa 2x2 celdas: la toca si la puerta cae dentro de ese cuadrado
+  // tanto la flecha como el estudiante ocupan 2x2 celdas: se tocan si sus cuadrados se superponen
   method estaTocadaPor(personaje) {
     const posicionPersonaje = personaje.position()
-    const tocaEnX = position.x().between(posicionPersonaje.x(), posicionPersonaje.x() + 1)
-    const tocaEnY = position.y().between(posicionPersonaje.y(), posicionPersonaje.y() + 1)
+    const tocaEnX = (position.x() - posicionPersonaje.x()).abs() <= 1
+    const tocaEnY = (position.y() - posicionPersonaje.y()).abs() <= 1
     return tocaEnX and tocaEnY
   }
 
@@ -82,31 +84,35 @@ class Sala {
   method yMedio() = config.alturaMax().div(2) - 1
 
   method puertaDerecha(destino) = new Puerta(
-    position = game.at(config.anchoMax() - 1, self.yMedio()),
+    position = game.at(config.anchoMax() - 2, self.yMedio()),
     destino = destino,
     aparecerEn = game.at(2, self.yMedio() - 1),
-    origen = self
+    origen = self,
+    imagenAbierta = "flecha_derecha.png"
   )
 
   method puertaIzquierda(destino) = new Puerta(
     position = game.at(0, self.yMedio()),
     destino = destino,
     aparecerEn = game.at(config.anchoMax() - 4, self.yMedio() - 1),
-    origen = self
+    origen = self,
+    imagenAbierta = "flecha_izquierda.png"
   )
 
   method puertaArriba(destino) = new Puerta(
-    position = game.at(self.xMedio(), config.alturaMax() - 1),
+    position = game.at(self.xMedio(), config.alturaMax() - 2),
     destino = destino,
     aparecerEn = game.at(self.xMedio() - 1, 2),
-    origen = self
+    origen = self,
+    imagenAbierta = "flecha_arriba.png"
   )
 
   method puertaAbajo(destino) = new Puerta(
     position = game.at(self.xMedio(), 0),
     destino = destino,
     aparecerEn = game.at(self.xMedio() - 1, config.alturaMax() - 4),
-    origen = self
+    origen = self,
+    imagenAbierta = "flecha_abajo.png"
   )
 }
 
