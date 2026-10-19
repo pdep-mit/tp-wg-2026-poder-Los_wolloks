@@ -130,8 +130,9 @@ object salaInicio inherits Sala(fondo = "sala-normal.png", enemigos = []) {
 object salaB inherits Sala(
   fondo = "sala-normal.png",
   enemigos = [
-    new ParcialFuncional(position = game.at(20, 15)),
-    new ParcialFuncional(position = game.at(20, 5))
+    parcialTirador,//queda asi por ahora para que no tire error
+    parcialDivisible
+
   ]
 ) {
   override method puertas() = [
@@ -145,8 +146,8 @@ object salaB inherits Sala(
 object salaC inherits Sala(
   fondo = "sala-normal.png",
   enemigos = [
-    new ParcialProlog(position = game.at(22, 11)),
-    new ParcialFuncional(position = game.at(15, 15))
+    parcialTirador, //queda asi por ahora para que no tire error
+    parcialDivisible
   ]
 ) {
   override method puertas() = [self.puertaIzquierda(salaB)]
@@ -155,8 +156,8 @@ object salaC inherits Sala(
 object salaD inherits Sala(
   fondo = "sala-normal.png",
   enemigos = [
-    new ParcialFuncional(position = game.at(8, 14)),
-    new ParcialProlog(position = game.at(22, 14))
+   parcialTirador,
+   parcialDivisible
   ]
 ) {
   override method puertas() = [self.puertaArriba(salaB)]

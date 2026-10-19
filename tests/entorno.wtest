@@ -4,6 +4,7 @@ import movimientos.*
 import items.*
 import disparos.*
 import wollok.game.*
+import mapa.*
 describe "Entorno: límites del tablero y sala del tesoro" {
 
   test "El estudiante no se sale del tablero por arriba" {

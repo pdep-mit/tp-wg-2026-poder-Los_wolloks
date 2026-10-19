@@ -79,3 +79,34 @@ class CafeDelBuffet inherits ItemPedestal {
     personaje.velocidadAtaque(150.max(personaje.velocidadAtaque() - 150))
   }
 }
+
+
+//No es item que aparece en pedestal
+class ItemEscudo inherits ItemPedestal {
+    override method image() = "escudo.png"
+    override method titulo() = "Escudo!"
+    override method descripcion() = "+5 vida" 
+    
+    override method efecto(personaje) {
+        personaje.defensa(new DefensaEscudo(vida = 5))
+    }
+}
+
+//ItemEscudo crea un escudo DefensaEscudo ya que por heredar ItemPedestal, desaparece al ser agarrado
+class DefensaEscudo { //Podria ser objeto si solo hacemos uno
+    var property vida 
+
+    method absorberDanio(cantidad, personaje) {
+        vida = 0.max(vida - cantidad)
+        if (vida == 0) {
+            personaje.defensa(sinEscudo)
+        }
+    }
+    method sufijoVisual() = "_escudo"
+}
+object sinEscudo {
+    method absorberDanio(cantidad, personaje) {
+        personaje.restarVida(cantidad)
+    }
+    method sufijoVisual() = ""
+}

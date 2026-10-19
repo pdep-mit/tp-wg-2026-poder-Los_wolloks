@@ -5,6 +5,9 @@ import hitbox.*
 import cuerpo_personajes.*
 import hud.*
 import disparos.*
+import mapa.*
+import items.*
+
 object estudiante {
 
     var property vidaMaxima = 3 
@@ -16,6 +19,7 @@ object estudiante {
     var property velocidadAtaque = 800
     var property estaDisparando = false
     var property direccionDisparo = null
+    var property defensa = sinEscudo //para escudo
 
     var position = game.at(8, 8)
 
@@ -27,7 +31,7 @@ object estudiante {
     position = nueva
     cuerpo.seguirA()
     }
-
+    
     method agregarHitboxes() { cuerpo.agregar() }
 
     method tiempoEntrePasos()=(200 - (velocidad * 20)).max(50)
@@ -57,7 +61,7 @@ object estudiante {
     method image() {
     if (vida == 0) return "estudiante_muerto.png"
 
-    return "estudiante" + self.sufijoSalud() + self.sufijoDireccion() + ".png"
+   return "estudiante" + self.sufijoSalud() + self.sufijoDireccion() + defensa.sufijoVisual() + ".png"
     }
 
     method sufijoSalud() = if (vida <= vidaMaxima / 3) "_daniado" else ""
@@ -90,11 +94,14 @@ object estudiante {
     }
 
     method recibirDanio(cantidad) {
-        vida = 0.max(vida - cantidad) 
+        defensa.absorberDanio(cantidad, self)
         
         if (vida == 0) {
             self.morir()
         }
+    }
+    method restarVida(cantidad) { //Cuando no tiene escudo
+        vida = 0.max(vida - cantidad)
     }
     method morir(){
     velocidad=0
@@ -111,7 +118,7 @@ object estudiante {
     }   
 
     method chocarItem(item) {
-    item.chocarEstudiante(self)
+      item.chocarEstudiante(self)
    }
 }
 
@@ -222,7 +229,6 @@ class Enemigo {
         if (position.y() > estudiante.position().y()) { return haciaAbajo }
         return quieto
     }
-
     method chocarItem(item) { }
 
     // Pone al enemigo en el juego
@@ -270,11 +276,18 @@ method signo(numero) = if (numero > 0) 1 else if (numero < 0) -1 else 0
 class EnemigoDivisible inherits Enemigo {
   const nivel
   var yaSeDividio = false
+  
+  method tirarEscudo() {
+    const escudoDrop = new ItemEscudo(position = self.position().right(2))
+    game.addVisual(escudoDrop)
+    
+    game.whenCollideDo(escudoDrop, { otro => otro.chocarItem(escudoDrop) })
+  }
 
   override method morir() {
     if (not yaSeDividio) {
       yaSeDividio = true
-      if (nivel > 1) { self.dividirse() }
+      if (nivel > 1) { self.dividirse() self.tirarEscudo() }
     }
     super()
   }
@@ -299,38 +312,16 @@ class EnemigoDivisible inherits Enemigo {
 }
 
 const parcial = new Enemigo(
+    position = game.at(7,7),
     vida = 5, 
     vidaMaxima = 5,
     danio = 0.5,
     imagenDaniado = "parcialDaniado.png",
     imagenEnemigo = "parcial.png",
     imagenMuerto = "parcialMuerto.png"
-) { }
+) 
 
-// Enemigo que no se mueve: dispara hacia donde está el estudiante
-class ParcialProlog inherits Enemigo(
-    vida = 3,
-    vidaMaxima = 3,
-    danio = 0.5,
-    imagenDaniado = "parcialDaniado.png",
-    imagenEnemigo = "parcial.png",
-    imagenMuerto = "parcialMuerto.png"
-) {
-    var property velocidadAtaque = 1500
-    var puedeDisparar = true
 
-    override method estados() = [disparando]
-
-    method finalizarRecarga() {
-        puedeDisparar = true
-    }
-
-    method disparar() {
-        if (puedeDisparar) {
-            puedeDisparar = false
-            arma.disparar(self, self.direccionAlEstudiante())
-        }
-    }
 
 const parcialTirador = new EnemigoTirador(
     vida = 4,
