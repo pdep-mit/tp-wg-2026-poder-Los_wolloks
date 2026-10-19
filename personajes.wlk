@@ -6,7 +6,7 @@ import cuerpo_personajes.*
 import hud.*
 import disparos.*
 import mapa.*
-import items.*
+
 
 object estudiante {
 
@@ -19,7 +19,6 @@ object estudiante {
     var property velocidadAtaque = 800
     var property estaDisparando = false
     var property direccionDisparo = null
-    var property defensa = sinEscudo //para escudo
 
     var position = game.at(8, 8)
 
@@ -28,65 +27,63 @@ object estudiante {
     const cuerpo = new Cuerpo(duenio = self)
 
     method position(nueva) {
-    position = nueva
-    cuerpo.seguirA()
+        position = nueva
+        cuerpo.seguirA()
     }
-    
+
     method agregarHitboxes() { cuerpo.agregar() }
 
-    method tiempoEntrePasos()=(200 - (velocidad * 20)).max(50)
-    method seMueveParaLaderecha()=estadoTeclasMovimiento.x()==1
+    method tiempoEntrePasos() = (200 - (velocidad * 20)).max(50)
+    method seMueveParaLaderecha() = estadoTeclasMovimiento.x() == 1
     
     method mover(direccion) {
- 
-    if (puedeMoverse and direccion.esMovimiento()) {
-      movimiento.mover(self, direccion)
-      mapa.revisarPuertas()
-      puedeMoverse = false
+        if (puedeMoverse and direccion.esMovimiento()) {
+            movimiento.mover(self, direccion)
+            mapa.revisarPuertas()
+            puedeMoverse = false
       
-      game.schedule(self.tiempoEntrePasos(), {
-        puedeMoverse = true
-        self.intentarSeguirMoviendose()
-      })
-    }
+            game.schedule(self.tiempoEntrePasos(), {
+                puedeMoverse = true
+                self.intentarSeguirMoviendose()
+            })
+        }
     }
 
-   method intentarSeguirMoviendose() {
-  
-    if (estadoTeclasMovimiento.estaActivo()) {
-      self.mover(estadoTeclasMovimiento.direccionActual())
+    method intentarSeguirMoviendose() {
+        if (estadoTeclasMovimiento.estaActivo()) {
+            self.mover(estadoTeclasMovimiento.direccionActual())
+        }
     }
-   }
 
     method image() {
-    if (vida == 0) return "estudiante_muerto.png"
+        if (vida == 0) return "estudiante_muerto.png"
 
-   return "estudiante" + self.sufijoSalud() + self.sufijoDireccion() + defensa.sufijoVisual() + ".png"
+        return "estudiante" + self.sufijoSalud() + self.sufijoDireccion() + ".png"
     }
 
     method sufijoSalud() = if (vida <= vidaMaxima / 3) "_daniado" else ""
 
     method sufijoDireccion() = if (self.seMueveParaLaderecha()) "_der" else "_izq"
 
-    method disparar(arma,direccion){
-        if(puedeDisparar and direccion.esMovimiento()){
-      self.puedeDisparar(false)
-            arma.disparar(self,direccion)
+    method disparar(arma, direccion) {
+        if (puedeDisparar and direccion.esMovimiento()) {
+            self.puedeDisparar(false)
+            arma.disparar(self, direccion)
         }
     }
 
-    method finalizarRecarga(){
+    method finalizarRecarga() {
         self.puedeDisparar(true)
     }
 
-    method chocarEnemigo(enemigo){
+    method chocarEnemigo(enemigo) {
         self.recibirDanio(enemigo.danio())
     }
 
     method disparaContraEstudiante() = false
 
-    // solo lo lastiman los proyectiles de los enemigos
-    method chocarProyectil(proyectil){
+    // Solo lo lastiman los proyectiles de los enemigos
+    method chocarProyectil(proyectil) {
         if (proyectil.contraEstudiante()) {
             self.recibirDanio(proyectil.danio())
             proyectil.destruir()
@@ -94,73 +91,72 @@ object estudiante {
     }
 
     method recibirDanio(cantidad) {
-        defensa.absorberDanio(cantidad, self)
+        vida = 0.max(vida - cantidad)
         
         if (vida == 0) {
             self.morir()
         }
     }
-    method restarVida(cantidad) { //Cuando no tiene escudo
-        vida = 0.max(vida - cantidad)
-    }
-    method morir(){
-    velocidad=0
-    puedeDisparar=false
-    game.say(self,"Nos vemos en el recu")
-    game.schedule(1000,{game.removeVisual(self)})
-    game.schedule(300,{game.stop()})
+
+    method morir() {
+        velocidad = 0
+        puedeDisparar = false
+        game.say(self, "Nos vemos en el recu")
+        game.schedule(1000, { game.removeVisual(self) })
+        game.schedule(300, { game.stop() })
     }
 
     method ganarVida(cantidad) {
-    vidaMaxima += cantidad
-    vida += cantidad
-      hud.actualizarCorazanes()
-    }   
+        vidaMaxima += cantidad
+        vida += cantidad
+        hud.actualizarCorazanes()
+    }
 
     method chocarItem(item) {
-      item.chocarEstudiante(self)
-   }
+        item.chocarEstudiante(self)
+    }
 }
 
 
-
 class Enemigo {
-    var property vida   
+    var property vida
     var property vidaMaxima
     var property danio
     var property velocidad = 1
     
-    var property imagenDaniado 
-    var property imagenEnemigo 
-    var property imagenMuerto 
+    var property imagenDaniado
+    var property imagenEnemigo
+    var property imagenMuerto
     
-    var position
+    var position // La posición debe pasarse al crear cada enemigo.
 
     method position() = position
 
     const cuerpo = new Cuerpo(duenio = self)
 
     method position(nueva) {
-    position = nueva
-    cuerpo.seguirA()
+        position = nueva
+        cuerpo.seguirA()
     }
 
     var enEscena = false
 
     method nombreTick() = "enemigo_persigue_" + self.identity().toString()
 
-    method iniciarMov(){
+    method iniciarMov() {
         game.onTick(500, self.nombreTick(), { self.acercarseAenemigo() })
     }
 
     method disparaContraEstudiante() = true
-    // solo lo lastiman los proyectiles del estudiante
-    method chocarProyectil(proyectil){
+
+    // Solo lo lastiman los proyectiles del estudiante
+    method chocarProyectil(proyectil) {
         if (!proyectil.contraEstudiante()) {
             self.recibirDanio(proyectil.danio())
             proyectil.destruir()
         }
     }
+
     method estaMuerto() = vida == 0
 
     method recibirDanio(cantidad) {
@@ -191,7 +187,7 @@ class Enemigo {
     
     method image() {
         if (vida == 0) {
-            return imagenMuerto 
+            return imagenMuerto
         } else if (vida <= vidaMaxima / 3) {
             return imagenDaniado
         } else {
@@ -202,20 +198,20 @@ class Enemigo {
     method estados() = [atacando, persiguiendo]
 
     method acercarseAenemigo() {
-    self.estados().find({ estado => estado.aplicaA(self) }).actuar(self)
+        self.estados().find({ estado => estado.aplicaA(self) }).actuar(self)
     }
 
     method atacar() {
-    estudiante.chocarEnemigo(self)
+        estudiante.chocarEnemigo(self)
     }
 
     method perseguir() {
-    movimiento.mover(self, self.direccionHorizontal())
-    movimiento.mover(self, self.direccionVertical())
+        movimiento.mover(self, self.direccionHorizontal())
+        movimiento.mover(self, self.direccionVertical())
     }
 
     method estaAlLadoDelEstudiante() {
-    return position.distance(estudiante.position()) <= 2
+        return position.distance(estudiante.position()) <= 2
     }
 
     method direccionHorizontal() {
@@ -229,98 +225,120 @@ class Enemigo {
         if (position.y() > estudiante.position().y()) { return haciaAbajo }
         return quieto
     }
+
+    method direccionAlEstudiante() { // CAMBIO: método común para calcular hacia dónde apuntar.
+        const dx = estudiante.position().x() - self.position().x()
+        const dy = estudiante.position().y() - self.position().y()
+        const pasoX = if (dx.abs() * 2 >= dy.abs()) self.signo(dx) else 0
+        const pasoY = if (dy.abs() * 2 >= dx.abs()) self.signo(dy) else 0
+        return new DireccionLibre(x = pasoX, y = pasoY)
+    }
+
+    method signo(numero) = if (numero > 0) 1 else if (numero < 0) -1 else 0 // CAMBIO: helper compartido por los enemigos.
+
     method chocarItem(item) { }
 
     // Pone al enemigo en el juego
     method aparecer() {
-    game.addVisual(self)
-    cuerpo.agregar()
-    enEscena = true
-    self.iniciarMov()
+        game.addVisual(self)
+        cuerpo.agregar()
+        enEscena = true
+        self.iniciarMov()
+    }
 }
 
-}
 
 class EnemigoTirador inherits Enemigo {
-  override method iniciarMov() {
-    game.onTick(1000, "enemigo_persigue_" + self.identity().toString(), { self.acercarseAenemigo() })
-    game.onTick(2500, "enemigo_dispara_" + self.identity().toString(), { self.disparar() })
-  }
+    override method iniciarMov() {
+        game.onTick(1000, "enemigo_persigue_" + self.identity().toString(), { self.acercarseAenemigo() })
+        game.onTick(2500, "enemigo_dispara_" + self.identity().toString(), { self.disparar() })
+    }
 
-  method disparar() {
-    const bala = new ProyectilEnemigo(
-      position = self.position(),
-      direccion = self.direccionDeDisparo(),
-      danio = self.danio()
-    )
-    game.addVisual(bala)
-    bala.iniciarMov()
-  }
+    method disparar() {
+        const bala = new ProyectilEnemigo(
+            position = self.position(),
+            direccion = self.direccionDeDisparo(),
+            danio = self.danio()
+        )
+        game.addVisual(bala)
+        bala.iniciarMov()
+    }
 
-  method direccionDeDisparo() {
-  const dx = estudiante.position().x() - self.position().x()
-  const dy = estudiante.position().y() - self.position().y()
-  const pasoX = if (dx.abs() * 2 >= dy.abs()) self.signo(dx) else 0
-  const pasoY = if (dy.abs() * 2 >= dx.abs()) self.signo(dy) else 0
-  return new DireccionLibre(x = pasoX, y = pasoY)
- }
+    method direccionDeDisparo() = self.direccionAlEstudiante() // CAMBIO: reutiliza el método común de Enemigo.
 
-method signo(numero) = if (numero > 0) 1 else if (numero < 0) -1 else 0
-
-  override method morir() {
-    game.removeTickEvent("enemigo_dispara_" + self.identity().toString())
-    super()
-  }
+    override method morir() {
+        game.removeTickEvent("enemigo_dispara_" + self.identity().toString())
+        super()
+    }
 }
 
-class EnemigoDivisible inherits Enemigo {
-  const nivel
-  var yaSeDividio = false
-  
-  method tirarEscudo() {
-    const escudoDrop = new ItemEscudo(position = self.position().right(2))
-    game.addVisual(escudoDrop)
-    
-    game.whenCollideDo(escudoDrop, { otro => otro.chocarItem(escudoDrop) })
-  }
 
-  override method morir() {
-    if (not yaSeDividio) {
-      yaSeDividio = true
-      if (nivel > 1) { self.dividirse() self.tirarEscudo() }
+class EnemigoDivisible inherits Enemigo {
+    const nivel
+    var yaSeDividio = false
+
+    override method morir() {
+        if (not yaSeDividio) {
+            yaSeDividio = true
+            if (nivel > 1) { self.dividirse() }
+        }
+        super()
     }
-    super()
-  }
 
     const separacion = 3
 
-   method dividirse() {
-    self.hijoEn(self.position().left(separacion)).aparecer()
-    self.hijoEn(self.position().right(separacion)).aparecer()
+    method dividirse() {
+        self.hijoEn(self.position().left(separacion)).aparecer()
+        self.hijoEn(self.position().right(separacion)).aparecer()
     }
 
-  method hijoEn(posicion) = new EnemigoDivisible(
-    nivel = nivel - 1,
-    vida = self.vidaMaxima() / 2,
-    vidaMaxima = self.vidaMaxima() / 2,
-    danio = self.danio() / 2,
-    position = posicion,
-    imagenEnemigo = "parcialChico.png",
-    imagenDaniado = "parcialChicoDaniado.png",
-    imagenMuerto = "parcialChicoMuerto.png"
-  )
+    method hijoEn(posicion) = new EnemigoDivisible(
+        nivel = nivel - 1,
+        vida = self.vidaMaxima() / 2,
+        vidaMaxima = self.vidaMaxima() / 2,
+        danio = self.danio() / 2,
+        position = posicion,
+        imagenEnemigo = "parcialChico.png",
+        imagenDaniado = "parcialChicoDaniado.png",
+        imagenMuerto = "parcialChicoMuerto.png"
+    )
 }
 
+
 const parcial = new Enemigo(
-    position = game.at(7,7),
-    vida = 5, 
+    vida = 5,
     vidaMaxima = 5,
+    danio = 0.5,
+    position = game.at(5, 10), // CAMBIO: Enemigo requiere una posición al instanciarse.
+    imagenDaniado = "parcialDaniado.png",
+    imagenEnemigo = "parcial.png",
+    imagenMuerto = "parcialMuerto.png"
+)
+
+class ParcialProlog inherits Enemigo(
+    vida = 3,
+    vidaMaxima = 3,
     danio = 0.5,
     imagenDaniado = "parcialDaniado.png",
     imagenEnemigo = "parcial.png",
     imagenMuerto = "parcialMuerto.png"
-) 
+) {
+    var property velocidadAtaque = 1500
+    var puedeDisparar = true
 
+    override method estados() = [disparando]
+
+    method finalizarRecarga() {
+        puedeDisparar = true
+    }
+
+    method disparar() {
+        if (puedeDisparar) {
+            puedeDisparar = false
+            arma.disparar(self, self.direccionAlEstudiante()) // CAMBIO: ahora existe en la clase base Enemigo.
+        }
+    }
+} // CAMBIO: cierra ParcialProlog antes de declarar los siguientes enemigos.
 
 
 const parcialTirador = new EnemigoTirador(

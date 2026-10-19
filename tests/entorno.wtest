@@ -1,9 +1,9 @@
 import configGenerales.*
-import personajes.*
 import movimientos.*
 import items.*
 import disparos.*
 import wollok.game.*
+import personajes.*
 import mapa.*
 describe "Entorno: límites del tablero y sala del tesoro" {
 
