@@ -19,6 +19,7 @@ object estudiante {
     var property velocidadAtaque = 800
     var property estaDisparando = false
     var property direccionDisparo = null
+    var  orientacion = 1//1 mira a la derecha , 0 a la izquierda
 
     var position = game.at(8, 8)
 
@@ -34,17 +35,21 @@ object estudiante {
     method agregarHitboxes() { cuerpo.agregar() }
 
     method tiempoEntrePasos() = (200 - (velocidad * 20)).max(50)
-    method seMueveParaLaderecha() = estadoTeclasMovimiento.x() == 1
-    
+    method actualizarOrientacion(direccion) { 
+       orientacion=(orientacion+direccion.x()).limitBetween(0, 1)
+    }
     method mover(direccion) {
-        if (puedeMoverse and direccion.esMovimiento()) {
+        self.actualizarOrientacion(direccion)
+        if (!self.estaMuerto() and puedeMoverse and direccion.esMovimiento()) {
             movimiento.mover(self, direccion)
             mapa.revisarPuertas()
             puedeMoverse = false
       
             game.schedule(self.tiempoEntrePasos(), {
+                if(!self.estaMuerto()){
                 puedeMoverse = true
                 self.intentarSeguirMoviendose()
+                }
             })
         }
     }
@@ -63,7 +68,8 @@ object estudiante {
 
     method sufijoSalud() = if (vida <= vidaMaxima / 3) "_daniado" else ""
 
-    method sufijoDireccion() = if (self.seMueveParaLaderecha()) "_der" else "_izq"
+    method sufijoDireccion() = if (orientacion==1) "_der" else "_izq"
+
 
     method disparar(arma, direccion) {
         if (puedeDisparar and direccion.esMovimiento()) {
@@ -73,7 +79,8 @@ object estudiante {
     }
 
     method finalizarRecarga() {
-        self.puedeDisparar(true)
+        if(!self.estaMuerto()){
+        self.puedeDisparar(true)}
     }
 
     method chocarEnemigo(enemigo) {
@@ -89,16 +96,18 @@ object estudiante {
             proyectil.destruir()
         }
     }
-
+     method estaMuerto()= vida==0
     method recibirDanio(cantidad) {
+        if(!self.estaMuerto()){
         vida = 0.max(vida - cantidad)
         
         if (vida == 0) {
             self.morir()
-        }
+        }}
     }
 
     method morir() {
+        puedeMoverse=0
         velocidad = 0
         puedeDisparar = false
         game.say(self, "Nos vemos en el recu")
