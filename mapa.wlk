@@ -14,7 +14,7 @@ class Puerta {
   const destino
   const aparecerEn
   const origen
-  const imagenAbierta
+  const property imagenAbierta
 
   method image() = if (self.estaAbierta()) imagenAbierta else "cruz.png"
 
@@ -43,11 +43,12 @@ class Puerta {
 // ------------------------------------------------------------
 // Sala: conoce su fondo, su colección de enemigos y sus puertas.
 // cargar() y descargar() son template methods: las subclases
-// (por ahora salaDelTesoro) agregan cosas con los "extras".
+// (por ahora SalaDelTesoro) agregan cosas con los "extras".
 // ------------------------------------------------------------
 class Sala {
   const property fondo
   const property enemigos
+  const itemsSueltos = []
   var puertasCargadas = []
 
   method puertas() = []
@@ -57,6 +58,7 @@ class Sala {
     puertasCargadas = self.puertas()
     puertasCargadas.forEach({ puerta => game.addVisual(puerta) })
     self.enemigosVivos().forEach({ enemigo => enemigo.aparecer() })
+    self.itemsSinAgarrar().forEach({ item => self.mostrarItemSuelto(item) })
     self.cargarExtras()
   }
 
@@ -64,8 +66,29 @@ class Sala {
     enemigos.forEach({ enemigo => enemigo.retirar() })
     puertasCargadas.forEach({ puerta => game.removeVisual(puerta) })
     puertasCargadas = []
+    self.itemsSinAgarrar().forEach({ item => game.removeVisual(item) })
     self.descargarExtras()
   }
+
+  // Un enemigo que aparece en medio de la partida (por ejemplo, los que suelta
+  // el parcial divisible) pasa a ser de la sala: hay que derrotarlo para abrir las puertas.
+  method agregarEnemigo(enemigo) {
+    enemigos.add(enemigo)
+    enemigo.aparecer()
+  }
+
+  // Un ítem que se suelta en la sala se queda en esta sala (no viaja a la siguiente).
+  method soltarItem(item) {
+    itemsSueltos.add(item)
+    self.mostrarItemSuelto(item)
+  }
+
+  method mostrarItemSuelto(item) {
+    game.addVisual(item)
+    game.whenCollideDo(item, { otro => otro.chocarItem(item) })
+  }
+
+  method itemsSinAgarrar() = itemsSueltos.filter({ item => !item.fueAgarrado() })
 
   method cargarExtras() { }
   method descargarExtras() { }
@@ -82,6 +105,9 @@ class Sala {
   // --- posiciones de las puertas y de dónde aparece el estudiante en la otra sala ---
   method xMedio() = config.anchoMax().div(2) - 1
   method yMedio() = config.alturaMax().div(2) - 1
+
+  method salidaArriba() = game.at(self.xMedio(), config.alturaMax() - 2)
+  method llegadaDesdeAbajo() = game.at(self.xMedio() - 1, 2)
 
   method puertaDerecha(destino) = new Puerta(
     position = game.at(config.anchoMax() - 2, self.yMedio()),
@@ -100,9 +126,9 @@ class Sala {
   )
 
   method puertaArriba(destino) = new Puerta(
-    position = game.at(self.xMedio(), config.alturaMax() - 2),
+    position = self.salidaArriba(),
     destino = destino,
-    aparecerEn = game.at(self.xMedio() - 1, 2),
+    aparecerEn = self.llegadaDesdeAbajo(),
     origen = self,
     imagenAbierta = "flecha_arriba.png"
   )
@@ -117,59 +143,16 @@ class Sala {
 }
 
 // ------------------------------------------------------------
-// Mapa:
-//
-//              [Tesoro]
-//   [Inicio] -  [B]  -  [C]
-//               [D]
+// Sala del tesoro: tiene un pedestal con un ítem al azar (que se
+// elige una sola vez, así no reaparece otro distinto al volver).
+// Cada sala del tesoro hereda de acá y solo dice a dónde vuelve.
 // ------------------------------------------------------------
-object salaInicio inherits Sala(fondo = "sala-normal.png", enemigos = []) {
-  override method puertas() = [self.puertaDerecha(salaB)]
-}
-
-object salaB inherits Sala(
-  fondo = "sala-normal.png",
-  enemigos = [
-    parcialTirador,//queda asi por ahora para que no tire error
-    parcialDivisible
-
-  ]
-) {
-  override method puertas() = [
-    self.puertaIzquierda(salaInicio),
-    self.puertaDerecha(salaC),
-    self.puertaArriba(salaDelTesoro),
-    self.puertaAbajo(salaD)
-  ]
-}
-
-object salaC inherits Sala(
-  fondo = "sala-normal.png",
-  enemigos = [
-    parcialTirador, //queda asi por ahora para que no tire error
-    parcialDivisible
-  ]
-) {
-  override method puertas() = [self.puertaIzquierda(salaB)]
-}
-
-object salaD inherits Sala(
-  fondo = "sala-normal.png",
-  enemigos = [
-   parcialTirador,
-   parcialDivisible
-  ]
-) {
-  override method puertas() = [self.puertaArriba(salaB)]
-}
-
-object salaDelTesoro inherits Sala(fondo = "sala-del-tesoro.png", enemigos = []) {
+class SalaDelTesoro inherits Sala(fondo = "sala-del-tesoro.png", enemigos = []) {
   var item = null
 
   // el item flota dos celdas arriba del pedestal
   method posicionDelItem() = pedestal.position().up(2)
 
-  // se elige una sola vez, así no reaparece otro distinto al volver
   method itemDeLaSala() {
     if (item == null) {
       item = [
@@ -180,8 +163,6 @@ object salaDelTesoro inherits Sala(fondo = "sala-del-tesoro.png", enemigos = [])
     }
     return item
   }
-
-  override method puertas() = [self.puertaAbajo(salaB)]
 
   override method cargarExtras() {
     game.addVisual(pedestal)
@@ -200,6 +181,72 @@ object salaDelTesoro inherits Sala(fondo = "sala-del-tesoro.png", enemigos = [])
   }
 }
 
+// ------------------------------------------------------------
+// Mapa: todo en línea hacia la derecha, y arriba de cada sala con
+// enemigos hay una sala del tesoro que se abre al limpiarla.
+//
+//    [Tesoro]    [Tesoro C]   [Tesoro D]
+//       |            |            |
+//  [Inicio] -> [B] -> [C]  ->    [D]
+// ------------------------------------------------------------
+object salaInicio inherits Sala(fondo = "sala-normal.png", enemigos = []) {
+  override method puertas() = [self.puertaDerecha(salaB)]
+}
+
+object salaB inherits Sala(
+  fondo = "sala-normal.png",
+  enemigos = [
+    parcialTirador,//queda asi por ahora para que no tire error
+    parcialDivisible
+
+  ]
+) {
+  override method puertas() = [
+    self.puertaIzquierda(salaInicio),
+    self.puertaDerecha(salaC),
+    self.puertaArriba(salaDelTesoro)
+  ]
+}
+
+object salaC inherits Sala(
+  fondo = "sala-normal.png",
+  enemigos = [
+    parcialTirador, //queda asi por ahora para que no tire error
+    parcialDivisible
+  ]
+) {
+  override method puertas() = [
+    self.puertaIzquierda(salaB),
+    self.puertaDerecha(salaD),
+    self.puertaArriba(salaDelTesoroC)
+  ]
+}
+
+object salaD inherits Sala(
+  fondo = "sala-normal.png",
+  enemigos = [
+   parcialTirador,
+   parcialDivisible
+  ]
+) {
+  override method puertas() = [
+    self.puertaIzquierda(salaC),
+    self.puertaArriba(salaDelTesoroD)
+  ]
+}
+
+object salaDelTesoro inherits SalaDelTesoro {
+  override method puertas() = [self.puertaAbajo(salaB)]
+}
+
+object salaDelTesoroC inherits SalaDelTesoro {
+  override method puertas() = [self.puertaAbajo(salaC)]
+}
+
+object salaDelTesoroD inherits SalaDelTesoro {
+  override method puertas() = [self.puertaAbajo(salaD)]
+}
+
 object pedestal {
   method position() = game.center().left(1).down(1)
 
@@ -214,7 +261,7 @@ object pedestal {
 // El mapa conoce las salas y cuál es la actual.
 // ------------------------------------------------------------
 object mapa {
-  const property salas = [salaInicio, salaB, salaC, salaD, salaDelTesoro]
+  const property salas = [salaInicio, salaB, salaC, salaD, salaDelTesoro, salaDelTesoroC, salaDelTesoroD]
   var property salaActual = salaInicio
 
   method iniciar() {
