@@ -88,13 +88,13 @@ class ItemEscudo inherits ItemPedestal {
     override method descripcion() = "+5 vida" 
     
     override method efecto(personaje) {
-        personaje.defensa(new DefensaEscudo(vida = 5))
+        personaje.defensa(new DefensaEscudo())
     }
 }
 
 //ItemEscudo crea un escudo DefensaEscudo ya que por heredar ItemPedestal, desaparece al ser agarrado
-class DefensaEscudo { //Podria ser objeto si solo hacemos uno
-    var property vida 
+class DefensaEscudo { 
+    var property vida = 5
 
     method absorberDanio(cantidad, personaje) {
         vida = 0.max(vida - cantidad)

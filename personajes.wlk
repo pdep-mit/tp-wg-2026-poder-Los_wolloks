@@ -6,6 +6,7 @@ import cuerpo_personajes.*
 import hud.*
 import disparos.*
 import mapa.*
+import items.*
 
 
 object estudiante {
@@ -19,6 +20,7 @@ object estudiante {
     var property velocidadAtaque = 800
     var property estaDisparando = false
     var property direccionDisparo = null
+    var property defensa = sinEscudo
     var  orientacion = 1//1 mira a la derecha , 0 a la izquierda
 
     var position = game.at(8, 8)
@@ -63,7 +65,7 @@ object estudiante {
     method image() {
         if (vida == 0) return "estudiante_muerto.png"
 
-        return "estudiante" + self.sufijoSalud() + self.sufijoDireccion() + ".png"
+        return "estudiante" + self.sufijoSalud() + self.sufijoDireccion() + defensa.sufijoVisual()+".png"
     }
 
     method sufijoSalud() = if (vida <= vidaMaxima / 3) "_daniado" else ""
@@ -96,14 +98,17 @@ object estudiante {
             proyectil.destruir()
         }
     }
-     method estaMuerto()= vida==0
+    method estaMuerto()= vida==0
+
     method recibirDanio(cantidad) {
-        if(!self.estaMuerto()){
-        vida = 0.max(vida - cantidad)
+        defensa.absorberDanio(cantidad, self)
         
-        if (vida == 0) {
+        if (self.estaMuerto()) {
             self.morir()
         }}
+    
+    method restarVida(cantidad) { //Cuando no tiene escudo
+        vida = 0.max(vida - cantidad)
     }
 
     method morir() {
@@ -262,7 +267,7 @@ class EnemigoTirador inherits Enemigo {
         game.onTick(1000, "enemigo_persigue_" + self.identity().toString(), { self.acercarseAenemigo() })
         game.onTick(2500, "enemigo_dispara_" + self.identity().toString(), { self.disparar() })
     }
-
+      
     method disparar() {
         const bala = new ProyectilEnemigo(
             position = self.position(),
@@ -295,10 +300,16 @@ class EnemigoDivisible inherits Enemigo {
     }
 
     const separacion = 3
-
+    method tirarEscudo() {
+        const escudoDrop = new ItemEscudo(position = self.position().right(2))
+        game.addVisual(escudoDrop)
+    
+        game.whenCollideDo(escudoDrop, { otro => otro.chocarItem(escudoDrop) })
+   }
     method dividirse() {
         self.hijoEn(self.position().left(separacion)).aparecer()
         self.hijoEn(self.position().right(separacion)).aparecer()
+        self.tirarEscudo()
     }
 
     method hijoEn(posicion) = new EnemigoDivisible(
@@ -354,7 +365,7 @@ const parcialTirador = new EnemigoTirador(
     vida = 4,
     vidaMaxima = 4,
     danio = 0.5,
-    position = game.at(3, 12),
+    position = game.at(20, 12),
     imagenDaniado = "parcialTiradorDaniado.png",
     imagenEnemigo = "parcialTirador.png",
     imagenMuerto = "parcialTiradorMuerto.png"
@@ -365,7 +376,7 @@ const parcialDivisible = new EnemigoDivisible(
     vida = 6,
     vidaMaxima = 6,
     danio = 0.5,
-    position = game.at(10, 8),
+    position = game.at(20, 8),
     imagenDaniado = "parcialDivisibleDaniado.png",
     imagenEnemigo = "parcialDivisible.png",
     imagenMuerto = "parcialDivisibleMuerto.png"
