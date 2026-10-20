@@ -1,0 +1,340 @@
+import wollok.game.*
+import configGenerales.*
+import movimientos.*
+import estados.*
+import personajes.*
+import items.*
+import mapa.*
+
+// ============================================================
+// Tests del Checkpoint 2 (solo lógica de dominio, sin interfaz).
+// Regla: no se prueba nada que dependa de timers (game.schedule /
+// game.onTick) ni de que el juego esté corriendo. Por eso evitamos
+// matar enemigos con recibirDanio, y usamos vida(0) para "simular"
+// un enemigo muerto.
+// ============================================================
+
+// ------------------------------------------------------------
+// 1) ENEMIGOS: polimorfismo y herencia
+// ------------------------------------------------------------
+describe "Enemigos: comportamiento polimórfico" {
+
+  method enemigoEn(x, y) = new Enemigo(
+    vida = 5, vidaMaxima = 5, danio = 0.5,
+    position = game.at(x, y),
+    imagenDaniado = "d.png", imagenEnemigo = "n.png", imagenMuerto = "m.png"
+  )
+
+  method tiradorEn(x, y) = new EnemigoTirador(
+    vida = 4, vidaMaxima = 4, danio = 0.5,
+    position = game.at(x, y),
+    imagenDaniado = "d.png", imagenEnemigo = "n.png", imagenMuerto = "m.png"
+  )
+
+  method divisibleEn(x, y) = new EnemigoDivisible(
+    nivel = 2, vida = 6, vidaMaxima = 6, danio = 0.5,
+    position = game.at(x, y),
+    imagenDaniado = "d.png", imagenEnemigo = "n.png", imagenMuerto = "m.png"
+  )
+
+  // el estudiante arranca en (8, 8)
+
+  test "Todos los tipos de enemigo pierden vida igual al recibir daño (sin morir)" {
+    const enemigos = [self.enemigoEn(1, 1), self.tiradorEn(1, 1), self.divisibleEn(1, 1)]
+    enemigos.forEach({ e => e.recibirDanio(1) })
+    assert.equals([4, 3, 5], enemigos.map({ e => e.vida() }))
+  }
+
+  test "Un enemigo con vida 0 está muerto y uno con vida no" {
+    const vivo = self.enemigoEn(1, 1)
+    const muerto = self.enemigoEn(1, 1)
+    muerto.vida(0)
+    assert.notThat(vivo.estaMuerto())
+    assert.that(muerto.estaMuerto())
+  }
+
+  test "Un enemigo muerto ignora el daño y su vida no baja de 0" {
+    const muerto = self.enemigoEn(1, 1)
+    muerto.vida(0)
+    muerto.recibirDanio(3)
+    assert.equals(0, muerto.vida())
+  }
+
+  test "La imagen del enemigo cambia según su vida" {
+    const e = self.enemigoEn(1, 1)
+    assert.equals("n.png", e.image())
+    e.vida(1)
+    assert.equals("d.png", e.image())
+    e.vida(0)
+    assert.equals("m.png", e.image())
+  }
+
+  test "Los enemigos disparan contra el estudiante y el estudiante no" {
+    assert.that(self.enemigoEn(1, 1).disparaContraEstudiante())
+    assert.that(self.tiradorEn(1, 1).disparaContraEstudiante())
+    assert.notThat(estudiante.disparaContraEstudiante())
+  }
+
+  test "El enemigo base usa los estados [atacando, persiguiendo]" {
+    assert.equals([atacando, persiguiendo], self.enemigoEn(1, 1).estados())
+  }
+
+  test "El ParcialProlog redefine los estados: solo dispara" {
+    const prolog = new ParcialProlog(position = game.at(1, 1))
+    assert.equals([disparando], prolog.estados())
+  }
+
+  test "El enemigo base persigue al estudiante: se acerca en x e y" {
+    const e = self.enemigoEn(2, 2)
+    e.acercarseAenemigo()
+    assert.equals(game.at(3, 3), e.position())
+  }
+
+  test "El enemigo no se mueve en el eje donde ya está alineado" {
+    const e = self.enemigoEn(8, 2)
+    e.acercarseAenemigo()
+    assert.equals(game.at(8, 3), e.position())
+  }
+
+  test "Un enemigo lejos no lastima al estudiante" {
+    const e = self.enemigoEn(1, 1)
+    e.acercarseAenemigo()
+    assert.equals(3, estudiante.vida())
+  }
+
+  test "Un enemigo pegado al estudiante lo ataca en vez de perseguirlo" {
+    const e = self.enemigoEn(8, 9)
+    e.acercarseAenemigo()
+    assert.equals(2.5, estudiante.vida())
+    assert.equals(game.at(8, 9), e.position())
+  }
+
+  test "El ataque del enemigo usa su propio daño" {
+    const fuerte = new Enemigo(
+      vida = 5, vidaMaxima = 5, danio = 2,
+      position = game.at(8, 9),
+      imagenDaniado = "d.png", imagenEnemigo = "n.png", imagenMuerto = "m.png"
+    )
+    fuerte.acercarseAenemigo()
+    assert.equals(1, estudiante.vida())
+  }
+
+  test "direccionAlEstudiante apunta en diagonal cuando está en diagonal" {
+    const dir = self.enemigoEn(2, 2).direccionAlEstudiante()
+    assert.equals(1, dir.x())
+    assert.equals(1, dir.y())
+  }
+
+  test "direccionAlEstudiante apunta solo en vertical si está alineado en x" {
+    const dir = self.tiradorEn(8, 2).direccionAlEstudiante()
+    assert.equals(0, dir.x())
+    assert.equals(1, dir.y())
+  }
+
+  test "direccionAlEstudiante apunta hacia la izquierda si el estudiante está a la izquierda" {
+    const dir = self.tiradorEn(12, 8).direccionAlEstudiante()
+    assert.equals(-1, dir.x())
+    assert.equals(0, dir.y())
+  }
+
+  test "El tirador reutiliza la dirección común de Enemigo para disparar" {
+    const tirador = self.tiradorEn(2, 2)
+    assert.equals(tirador.direccionAlEstudiante().x(), tirador.direccionDeDisparo().x())
+    assert.equals(tirador.direccionAlEstudiante().y(), tirador.direccionDeDisparo().y())
+  }
+
+  test "El divisible genera hijos con la mitad de vida y de daño" {
+    const hijo = self.divisibleEn(5, 5).hijoEn(game.at(2, 5))
+    assert.equals(3, hijo.vida())
+    assert.equals(3, hijo.vidaMaxima())
+    assert.equals(0.25, hijo.danio())
+  }
+
+  test "El hijo del divisible aparece en la posición pedida" {
+    const hijo = self.divisibleEn(5, 5).hijoEn(game.at(2, 5))
+    assert.equals(game.at(2, 5), hijo.position())
+  }
+}
+
+// ------------------------------------------------------------
+// 2) ÍTEMS: polimorfismo y efectos combinados
+// ------------------------------------------------------------
+describe "Ítems: efectos individuales y combinados" {
+
+  const constancia = new ConstanciaAprobado(position = game.at(1, 1))
+  const apuntes = new ApuntesWollok(position = game.at(1, 1))
+  const cafe = new CafeDelBuffet(position = game.at(1, 1))
+
+  test "Los apuntes de Wollok suman 1 de daño" {
+    apuntes.efecto(estudiante)
+    assert.equals(2, estudiante.danio())
+  }
+
+  test "Los apuntes no tocan la vida ni la velocidad de ataque" {
+    apuntes.efecto(estudiante)
+    assert.equals(3, estudiante.vida())
+    assert.equals(800, estudiante.velocidadAtaque())
+  }
+
+  test "El café del buffet reduce el tiempo de recarga" {
+    cafe.efecto(estudiante)
+    assert.equals(650, estudiante.velocidadAtaque())
+  }
+
+  test "El café nunca baja la recarga de 150" {
+    10.times({ i => cafe.efecto(estudiante) })
+    assert.equals(150, estudiante.velocidadAtaque())
+  }
+
+  test "Dos apuntes acumulan el daño" {
+    apuntes.efecto(estudiante)
+    apuntes.efecto(estudiante)
+    assert.equals(3, estudiante.danio())
+  }
+
+  test "Los tres ítems juntos aplican todos sus efectos (polimorfismo)" {
+    [constancia, apuntes, cafe].forEach({ item => item.efecto(estudiante) })
+    assert.equals(4, estudiante.vida())
+    assert.equals(4, estudiante.vidaMaxima())
+    assert.equals(2, estudiante.danio())
+    assert.equals(650, estudiante.velocidadAtaque())
+  }
+
+  test "El orden en que se agarran los ítems no cambia el resultado" {
+    [cafe, apuntes, constancia].forEach({ item => item.efecto(estudiante) })
+    assert.equals(4, estudiante.vida())
+    assert.equals(2, estudiante.danio())
+    assert.equals(650, estudiante.velocidadAtaque())
+  }
+
+  test "Cada ítem informa un título y descripción propios" {
+    const titulos = [constancia, apuntes, cafe].map({ item => item.titulo() })
+    assert.equals(3, titulos.asSet().size())
+  }
+
+  test "Un ítem recién creado no fue agarrado" {
+    assert.notThat(constancia.fueAgarrado())
+  }
+
+  test "Un enemigo que pisa un ítem no lo activa (chocarItem no hace nada)" {
+    const enemigo = new Enemigo(
+      vida = 5, vidaMaxima = 5, danio = 0.5, position = game.at(1, 1),
+      imagenDaniado = "d.png", imagenEnemigo = "n.png", imagenMuerto = "m.png"
+    )
+    enemigo.chocarItem(apuntes)
+    assert.equals(1, estudiante.danio())
+  }
+}
+
+// ------------------------------------------------------------
+// 3) MAPA Y SALAS: colecciones
+// ------------------------------------------------------------
+describe "Mapa: salas, enemigos por sala y puertas" {
+
+  method enemigoEn(x, y) = new Enemigo(
+    vida = 5, vidaMaxima = 5, danio = 0.5,
+    position = game.at(x, y),
+    imagenDaniado = "d.png", imagenEnemigo = "n.png", imagenMuerto = "m.png"
+  )
+
+  test "El mapa conoce 5 salas" {
+    assert.equals(5, mapa.salas().size())
+  }
+
+  test "El mapa arranca en la sala de inicio" {
+    assert.equals(salaInicio, mapa.salaActual())
+  }
+
+  test "La sala de inicio y la del tesoro no tienen enemigos, están limpias" {
+    assert.that(salaInicio.estaLimpia())
+    assert.that(salaDelTesoro.estaLimpia())
+  }
+
+  test "Una sala con enemigos vivos no está limpia" {
+    const sala = new Sala(fondo = "f.png", enemigos = [self.enemigoEn(1, 1), self.enemigoEn(2, 2)])
+    assert.notThat(sala.estaLimpia())
+  }
+
+  test "Una sala con algún enemigo vivo todavía no está limpia" {
+    const e1 = self.enemigoEn(1, 1)
+    const e2 = self.enemigoEn(2, 2)
+    const sala = new Sala(fondo = "f.png", enemigos = [e1, e2])
+    e1.vida(0)
+    assert.notThat(sala.estaLimpia())
+  }
+
+  test "Una sala queda limpia cuando mueren todos sus enemigos" {
+    const e1 = self.enemigoEn(1, 1)
+    const e2 = self.enemigoEn(2, 2)
+    const sala = new Sala(fondo = "f.png", enemigos = [e1, e2])
+    e1.vida(0)
+    e2.vida(0)
+    assert.that(sala.estaLimpia())
+  }
+
+  test "enemigosVivos solo devuelve los enemigos que siguen con vida" {
+    const e1 = self.enemigoEn(1, 1)
+    const e2 = self.enemigoEn(2, 2)
+    const sala = new Sala(fondo = "f.png", enemigos = [e1, e2])
+    e1.vida(0)
+    assert.equals([e2], sala.enemigosVivos())
+  }
+
+  test "Cada sala tiene la cantidad de puertas del diseño del mapa" {
+    assert.equals(1, salaInicio.puertas().size())
+    assert.equals(4, salaB.puertas().size())
+    assert.equals(1, salaC.puertas().size())
+    assert.equals(1, salaD.puertas().size())
+    assert.equals(1, salaDelTesoro.puertas().size())
+  }
+
+  test "No todas las salas están limpias al empezar" {
+    assert.notThat(mapa.todasLasSalasLimpias())
+  }
+
+  test "Con todos los enemigos muertos, todas las salas están limpias" {
+    parcialTirador.vida(0)
+    parcialDivisible.vida(0)
+    assert.that(mapa.todasLasSalasLimpias())
+  }
+
+  test "Una puerta está cerrada si su sala de origen tiene enemigos vivos" {
+    const sala = new Sala(fondo = "f.png", enemigos = [self.enemigoEn(1, 1)])
+    const puerta = new Puerta(
+      position = game.at(10, 10), destino = salaInicio,
+      aparecerEn = game.at(2, 2), origen = sala, imagenAbierta = "flecha.png"
+    )
+    assert.notThat(puerta.estaAbierta())
+    assert.equals("cruz.png", puerta.image())
+  }
+
+  test "Una puerta se abre cuando la sala de origen queda limpia" {
+    const enemigo = self.enemigoEn(1, 1)
+    const sala = new Sala(fondo = "f.png", enemigos = [enemigo])
+    const puerta = new Puerta(
+      position = game.at(10, 10), destino = salaInicio,
+      aparecerEn = game.at(2, 2), origen = sala, imagenAbierta = "flecha.png"
+    )
+    enemigo.vida(0)
+    assert.that(puerta.estaAbierta())
+    assert.equals("flecha.png", puerta.image())
+  }
+
+  test "El estudiante toca la puerta cuando sus celdas se superponen" {
+    const puerta = new Puerta(
+      position = game.at(10, 10), destino = salaInicio,
+      aparecerEn = game.at(2, 2), origen = salaInicio, imagenAbierta = "flecha.png"
+    )
+    estudiante.position(game.at(11, 11))
+    assert.that(puerta.estaTocadaPor(estudiante))
+  }
+
+  test "El estudiante lejos de la puerta no la toca" {
+    const puerta = new Puerta(
+      position = game.at(10, 10), destino = salaInicio,
+      aparecerEn = game.at(2, 2), origen = salaInicio, imagenAbierta = "flecha.png"
+    )
+    estudiante.position(game.at(13, 10))
+    assert.notThat(puerta.estaTocadaPor(estudiante))
+  }
+}

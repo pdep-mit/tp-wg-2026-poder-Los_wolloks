@@ -5,11 +5,14 @@ import disparos.*
 import wollok.game.*
 import personajes.*
 import mapa.*
+
 describe "Entorno: límites del tablero y sala del tesoro" {
+
+  // El estudiante ocupa 2x2 celdas, por eso su posición máxima es (ancho - 2, alto - 2)
 
   test "El estudiante no se sale del tablero por arriba" {
     20.times({ i => movimiento.mover(estudiante, haciaArriba) })
-    assert.equals(config.alturaMax() - 1, estudiante.position().y())
+    assert.equals(config.alturaMax() - 2, estudiante.position().y())
   }
 
   test "El estudiante no se sale del tablero por abajo" {
@@ -19,7 +22,7 @@ describe "Entorno: límites del tablero y sala del tesoro" {
 
   test "El estudiante no se sale del tablero por la derecha" {
     20.times({ i => movimiento.mover(estudiante, haciaLaDerecha) })
-    assert.equals(config.anchoMax() - 1, estudiante.position().x())
+    assert.equals(config.anchoMax() - 2, estudiante.position().x())
   }
 
   test "El estudiante no se sale del tablero por la izquierda" {
@@ -29,11 +32,11 @@ describe "Entorno: límites del tablero y sala del tesoro" {
 
   test "El pedestal queda en el centro del tablero configurado" {
     config.configurarVentana()
-    assert.equals(game.at(7, 5), pedestal.position())
+    assert.equals(game.at(14, 10), pedestal.position())
   }
 
-  test "El ítem de la sala del tesoro va sobre el pedestal" {
-    assert.equals(pedestal.position().up(1), salaDelTesoro.posicionDelItem())
+  test "El ítem de la sala del tesoro flota dos celdas arriba del pedestal" {
+    assert.equals(pedestal.position().up(2), salaDelTesoro.posicionDelItem())
   }
 }
 
@@ -62,11 +65,11 @@ describe "Ítems: efecto sobre el estudiante" {
     constancia.efecto(estudiante)
     assert.equals(1, estudiante.danio())
     assert.equals(1, estudiante.velocidad())
-    assert.equals(500, estudiante.velocidadAtaque())
+    assert.equals(800, estudiante.velocidadAtaque())
   }
 
   test "Un enemigo que toca el ítem no lo activa" {
-    constancia.chocarCon(parcial)
+    parcial.chocarItem(constancia)
     assert.equals(3, estudiante.vida())
     assert.equals(3, estudiante.vidaMaxima())
   }
@@ -110,21 +113,32 @@ describe "Direcciones: polimorfismo de posicionSig" {
     assert.equals(game.at(5, 5), estudiante.position())
   }
 
-  test "una velocidad mayor avanza más celdas" {
+  test "la velocidad no cambia cuántas celdas avanza cada paso" {
     self.prepararEstudianteEn(5, 5)
     estudiante.velocidad(3)
-    assert.equals(game.at(5, 8), haciaArriba.posicionSig(estudiante))
+    assert.equals(game.at(5, 6), haciaArriba.posicionSig(estudiante))
   }
 
-  test "con velocidad grande no se pasa del techo" {
-    self.prepararEstudianteEn(5, 9)
-    estudiante.velocidad(5)
-    assert.equals(game.at(5, config.alturaMax() - 1), haciaArriba.posicionSig(estudiante))
+  test "una velocidad mayor reduce el tiempo entre pasos" {
+    self.prepararEstudianteEn(5, 5)
+    const tiempoLento = estudiante.tiempoEntrePasos()
+    estudiante.velocidad(3)
+    assert.that(estudiante.tiempoEntrePasos() < tiempoLento)
   }
 
-  test "con velocidad grande no se pasa del piso" {
-    self.prepararEstudianteEn(5, 1)
-    estudiante.velocidad(5)
+  test "el tiempo entre pasos nunca baja de 50" {
+    self.prepararEstudianteEn(5, 5)
+    estudiante.velocidad(20)
+    assert.equals(50, estudiante.tiempoEntrePasos())
+  }
+
+  test "no se pasa del techo" {
+    self.prepararEstudianteEn(5, config.alturaMax() - 2)
+    assert.equals(game.at(5, config.alturaMax() - 2), haciaArriba.posicionSig(estudiante))
+  }
+
+  test "no se pasa del piso" {
+    self.prepararEstudianteEn(5, 0)
     assert.equals(game.at(5, 0), haciaAbajo.posicionSig(estudiante))
   }
 
