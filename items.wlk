@@ -43,6 +43,9 @@ class ItemPedestal {
   // los disparos pasan de largo por el item
   method chocarProyectil(proyectil) { }
 
+  // si dos items se superponen, se ignoran entre sí
+  method chocarItem(item) { }
+
   method chocarEstudiante(personaje) {
     if (!agarrado) {
       agarrado = true

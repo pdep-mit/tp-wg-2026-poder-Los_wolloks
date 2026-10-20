@@ -147,7 +147,7 @@ class Sala {
 // elige una sola vez, así no reaparece otro distinto al volver).
 // Cada sala del tesoro hereda de acá y solo dice a dónde vuelve.
 // ------------------------------------------------------------
-class SalaDelTesoro inherits Sala(fondo = "sala-del-tesoro.png", enemigos = []) {
+class SalaDelTesoro inherits Sala {
   var item = null
 
   // el item flota dos celdas arriba del pedestal
@@ -196,9 +196,8 @@ object salaInicio inherits Sala(fondo = "sala-normal.png", enemigos = []) {
 object salaB inherits Sala(
   fondo = "sala-normal.png",
   enemigos = [
-    parcialTirador,//queda asi por ahora para que no tire error
-    parcialDivisible
-
+    new ParcialTirador(position = game.at(20, 12)),
+    new ParcialDivisible(position = game.at(20, 8))
   ]
 ) {
   override method puertas() = [
@@ -210,10 +209,7 @@ object salaB inherits Sala(
 
 object salaC inherits Sala(
   fondo = "sala-normal.png",
-  enemigos = [
-    parcialTirador, //queda asi por ahora para que no tire error
-    parcialDivisible
-  ]
+  enemigos = []
 ) {
   override method puertas() = [
     self.puertaIzquierda(salaB),
@@ -224,10 +220,7 @@ object salaC inherits Sala(
 
 object salaD inherits Sala(
   fondo = "sala-normal.png",
-  enemigos = [
-   parcialTirador,
-   parcialDivisible
-  ]
+  enemigos = []
 ) {
   override method puertas() = [
     self.puertaIzquierda(salaC),
@@ -235,15 +228,15 @@ object salaD inherits Sala(
   ]
 }
 
-object salaDelTesoro inherits SalaDelTesoro {
+object salaDelTesoro inherits SalaDelTesoro(fondo = "sala-del-tesoro.png", enemigos = []) {
   override method puertas() = [self.puertaAbajo(salaB)]
 }
 
-object salaDelTesoroC inherits SalaDelTesoro {
+object salaDelTesoroC inherits SalaDelTesoro(fondo = "sala-del-tesoro.png", enemigos = []) {
   override method puertas() = [self.puertaAbajo(salaC)]
 }
 
-object salaDelTesoroD inherits SalaDelTesoro {
+object salaDelTesoroD inherits SalaDelTesoro(fondo = "sala-del-tesoro.png", enemigos = []) {
   override method puertas() = [self.puertaAbajo(salaD)]
 }
 

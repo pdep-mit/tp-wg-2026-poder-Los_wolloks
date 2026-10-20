@@ -112,7 +112,7 @@ object estudiante {
     }
 
     method morir() {
-        puedeMoverse=0
+        puedeMoverse = false
         velocidad = 0
         puedeDisparar = false
         game.say(self, "Nos vemos en el recu")
@@ -161,6 +161,11 @@ class Enemigo {
         game.onTick(500, self.nombreTick(), { self.acercarseAenemigo() })
     }
 
+    // Frena todo lo que el enemigo hace con el tiempo (las subclases agregan lo suyo)
+    method detenerMov() {
+        game.removeTickEvent(self.nombreTick())
+    }
+
     method disparaContraEstudiante() = true
 
     // Solo lo lastiman los proyectiles del estudiante
@@ -183,7 +188,7 @@ class Enemigo {
     }
     
     method morir() {
-        game.removeTickEvent(self.nombreTick())
+        self.detenerMov()
         game.schedule(800, { self.retirar() })
     }
 
@@ -191,7 +196,7 @@ class Enemigo {
     method retirar() {
         if (enEscena) {
             if (!self.estaMuerto()) {
-                game.removeTickEvent(self.nombreTick())
+                self.detenerMov()
             }
             cuerpo.sacar()
             game.removeVisual(self)
@@ -263,9 +268,17 @@ class Enemigo {
 
 
 class EnemigoTirador inherits Enemigo {
+    method nombreTickDisparo() = "enemigo_dispara_" + self.identity().toString()
+
     override method iniciarMov() {
-        game.onTick(1000, "enemigo_persigue_" + self.identity().toString(), { self.acercarseAenemigo() })
-        game.onTick(2500, "enemigo_dispara_" + self.identity().toString(), { self.disparar() })
+        game.onTick(1000, self.nombreTick(), { self.acercarseAenemigo() })
+        game.onTick(2500, self.nombreTickDisparo(), { self.disparar() })
+    }
+
+    // además de dejar de moverse, deja de disparar (al morir o al irse de la sala)
+    override method detenerMov() {
+        game.removeTickEvent(self.nombreTickDisparo())
+        super()
     }
       
     method disparar() {
@@ -279,11 +292,6 @@ class EnemigoTirador inherits Enemigo {
     }
 
     method direccionDeDisparo() = self.direccionAlEstudiante() // CAMBIO: reutiliza el método común de Enemigo.
-
-    override method morir() {
-        game.removeTickEvent("enemigo_dispara_" + self.identity().toString())
-        super()
-    }
 }
 
 
@@ -300,15 +308,17 @@ class EnemigoDivisible inherits Enemigo {
     }
 
     const separacion = 3
+
+    // el escudo queda en la sala donde cae (no viaja a la siguiente)
     method tirarEscudo() {
         const escudoDrop = new ItemEscudo(position = self.position().right(2))
-        game.addVisual(escudoDrop)
-    
-        game.whenCollideDo(escudoDrop, { otro => otro.chocarItem(escudoDrop) })
-   }
+        mapa.salaActual().soltarItem(escudoDrop)
+    }
+
+    // los hijos pasan a ser enemigos de la sala: hay que derrotarlos para abrir las puertas
     method dividirse() {
-        self.hijoEn(self.position().left(separacion)).aparecer()
-        self.hijoEn(self.position().right(separacion)).aparecer()
+        mapa.salaActual().agregarEnemigo(self.hijoEn(self.position().left(separacion)))
+        mapa.salaActual().agregarEnemigo(self.hijoEn(self.position().right(separacion)))
         self.tirarEscudo()
     }
 
@@ -361,23 +371,27 @@ class ParcialProlog inherits Enemigo(
 } // CAMBIO: cierra ParcialProlog antes de declarar los siguientes enemigos.
 
 
-const parcialTirador = new EnemigoTirador(
+// Con estas clases cada sala crea sus propios enemigos: new ParcialTirador(position = ...)
+class ParcialTirador inherits EnemigoTirador(
     vida = 4,
     vidaMaxima = 4,
     danio = 0.5,
-    position = game.at(20, 12),
     imagenDaniado = "parcialTiradorDaniado.png",
     imagenEnemigo = "parcialTirador.png",
     imagenMuerto = "parcialTiradorMuerto.png"
-)
+) { }
 
-const parcialDivisible = new EnemigoDivisible(
+class ParcialDivisible inherits EnemigoDivisible(
     nivel = 2,
     vida = 6,
     vidaMaxima = 6,
     danio = 0.5,
-    position = game.at(20, 8),
     imagenDaniado = "parcialDivisibleDaniado.png",
     imagenEnemigo = "parcialDivisible.png",
     imagenMuerto = "parcialDivisibleMuerto.png"
-)
+) { }
+
+// Se dejan por si los tests los usan; las salas ya no los comparten
+const parcialTirador = new ParcialTirador(position = game.at(20, 12))
+
+const parcialDivisible = new ParcialDivisible(position = game.at(20, 8))
