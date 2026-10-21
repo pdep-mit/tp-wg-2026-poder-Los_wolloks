@@ -79,9 +79,9 @@ describe "Enemigos: comportamiento polimórfico" {
     assert.equals([atacando, persiguiendo], self.enemigoEn(1, 1).estados())
   }
 
-  test "El ParcialProlog redefine los estados: solo dispara" {
-    const prolog = new Parcial(position = game.at(1, 1))
-    assert.equals([disparando], prolog.estados())
+  test "El Parcial ProLog usa los estados [atacando, persiguiendo]" {
+    const parcial = new Parcial(position = game.at(1, 1))
+    assert.equals([atacando, persiguiendo], parcial.estados())
   }
 
   test "El enemigo base persigue al estudiante: se acerca en x e y" {
@@ -237,8 +237,8 @@ describe "Mapa: salas, enemigos por sala y puertas" {
     imagenDaniado = "d.png", imagenEnemigo = "n.png", imagenMuerto = "m.png"
   )
 
-  test "El mapa conoce 5 salas" {
-    assert.equals(5, mapa.salas().size())
+  test "El mapa conoce 7 salas" {
+    assert.equals(7, mapa.salas().size())
   }
 
   test "El mapa arranca en la sala de inicio" {
@@ -282,10 +282,12 @@ describe "Mapa: salas, enemigos por sala y puertas" {
 
   test "Cada sala tiene la cantidad de puertas del diseño del mapa" {
     assert.equals(1, salaInicio.puertas().size())
-    assert.equals(4, salaB.puertas().size())
-    assert.equals(1, salaC.puertas().size())
-    assert.equals(1, salaD.puertas().size())
+    assert.equals(3, salaB.puertas().size())
+    assert.equals(3, salaC.puertas().size())
+    assert.equals(2, salaD.puertas().size())
     assert.equals(1, salaDelTesoro.puertas().size())
+    assert.equals(1, salaDelTesoroC.puertas().size())
+    assert.equals(1, salaDelTesoroD.puertas().size())
   }
 
   test "No todas las salas están limpias al empezar" {
@@ -293,8 +295,11 @@ describe "Mapa: salas, enemigos por sala y puertas" {
   }
 
   test "Con todos los enemigos muertos, todas las salas están limpias" {
-    parcialTirador.vida(0)
-    parcialDivisible.vida(0)
+    mapa.salas().forEach({ sala =>
+      sala.enemigos().forEach({ enemigo =>
+        enemigo.vida(0)
+      })
+    })
     assert.that(mapa.todasLasSalasLimpias())
   }
 
