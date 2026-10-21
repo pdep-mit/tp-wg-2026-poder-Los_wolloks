@@ -344,7 +344,7 @@ class Parcial inherits Enemigo(vida = 5,
 } 
 // Con estas clases cada sala crea sus propios enemigos: new ParcialTirador(position = ...)
 class ParcialTirador inherits EnemigoTirador(
-    vida = 4,
+    vida = 6,
     vidaMaxima = 4,
     danio = 0.5,
     imagenDaniado = "parcialTiradorDaniado.png",
