@@ -334,43 +334,14 @@ class EnemigoDivisible inherits Enemigo {
     )
 }
 
-
-const parcial = new Enemigo(
-    vida = 5,
-    vidaMaxima = 5,
-    danio = 0.5,
-    position = game.at(5, 10), // CAMBIO: Enemigo requiere una posición al instanciarse.
-    imagenDaniado = "parcialDaniado.png",
-    imagenEnemigo = "parcial.png",
-    imagenMuerto = "parcialMuerto.png"
-)
-
-class ParcialProlog inherits Enemigo(
-    vida = 3,
+class Parcial inherits Enemigo(vida = 5,
     vidaMaxima = 3,
     danio = 0.5,
     imagenDaniado = "parcialDaniado.png",
     imagenEnemigo = "parcial.png",
-    imagenMuerto = "parcialMuerto.png"
-) {
-    var property velocidadAtaque = 1500
-    var puedeDisparar = true
-
-    override method estados() = [disparando]
-
-    method finalizarRecarga() {
-        puedeDisparar = true
-    }
-
-    method disparar() {
-        if (puedeDisparar) {
-            puedeDisparar = false
-            arma.disparar(self, self.direccionAlEstudiante()) // CAMBIO: ahora existe en la clase base Enemigo.
-        }
-    }
-} // CAMBIO: cierra ParcialProlog antes de declarar los siguientes enemigos.
-
-
+    imagenMuerto = "parcialMuerto.png"){
+    
+} 
 // Con estas clases cada sala crea sus propios enemigos: new ParcialTirador(position = ...)
 class ParcialTirador inherits EnemigoTirador(
     vida = 4,

@@ -80,7 +80,7 @@ describe "Enemigos: comportamiento polimórfico" {
   }
 
   test "El ParcialProlog redefine los estados: solo dispara" {
-    const prolog = new ParcialProlog(position = game.at(1, 1))
+    const prolog = new Parcial(position = game.at(1, 1))
     assert.equals([disparando], prolog.estados())
   }
 
