@@ -193,11 +193,12 @@ object salaInicio inherits Sala(fondo = "sala-normal.png", enemigos = []) {
   override method puertas() = [self.puertaDerecha(salaB)]
 }
 
+// Sala B: dos parciales comunes (clase Parcial, imagen parcial.png).
 object salaB inherits Sala(
   fondo = "sala-normal.png",
   enemigos = [
-    new ParcialTirador(position = game.at(20, 12)),
-    new ParcialDivisible(position = game.at(20, 8))
+    new ParcialDivisible(position = game.at(20, 16)),
+    new Parcial(position = game.at(20, 4))
   ]
 ) {
   override method puertas() = [
@@ -207,9 +208,12 @@ object salaB inherits Sala(
   ]
 }
 
+// Sala C: un parcial Prolog (tirador).
 object salaC inherits Sala(
   fondo = "sala-normal.png",
-  enemigos = []
+  enemigos = [
+    new ParcialTirador(position = game.at(20, 10))
+  ]
 ) {
   override method puertas() = [
     self.puertaIzquierda(salaB),
@@ -218,15 +222,20 @@ object salaC inherits Sala(
   ]
 }
 
+// Sala D: un parcial divisible y un parcial tirador.
 object salaD inherits Sala(
   fondo = "sala-normal.png",
-  enemigos = []
+  enemigos = [
+    new Parcial(position = game.at(20, 16)),
+    new ParcialTirador(position = game.at(20, 4))
+  ]
 ) {
   override method puertas() = [
     self.puertaIzquierda(salaC),
     self.puertaArriba(salaDelTesoroD)
   ]
 }
+
 
 object salaDelTesoro inherits SalaDelTesoro(fondo = "sala-del-tesoro.png", enemigos = []) {
   override method puertas() = [self.puertaAbajo(salaB)]
