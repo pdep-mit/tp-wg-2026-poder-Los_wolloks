@@ -11,11 +11,18 @@ class Cuerpo {
       new Hitbox(duenio = duenio, desplazamientoX = 0, desplazamientoY = 1),
       new Hitbox(duenio = duenio, desplazamientoX = 1, desplazamientoY = 1)
     ]
-    hitboxes.forEach({ h => game.addVisual(h)})
+    hitboxes.forEach({ h =>
+      h.actualizar()
+      game.addVisual(h)
+    })
   }
 
   method sacar() {
     hitboxes.forEach({ h => game.removeVisual(h) })
     hitboxes = []
+  }
+
+  method seguirA() {
+    hitboxes.forEach({ h => h.actualizar() })
   }
 }

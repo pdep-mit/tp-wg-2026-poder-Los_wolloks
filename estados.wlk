@@ -8,4 +8,7 @@ object persiguiendo {
   method actuar(enemigo) { enemigo.perseguir() }
 }
 
-// Se elimina el estado disparando porque los enemigos tiradores disparan de manera independiente a sus estados de movimiento (perseguir y atacar).
+object disparando {
+  method aplicaA(enemigo) = true
+  method actuar(enemigo) { enemigo.disparar() }
+}

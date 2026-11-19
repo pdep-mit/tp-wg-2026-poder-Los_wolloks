@@ -31,6 +31,7 @@ object estudiante {
 
     method position(nueva) {
         position = nueva
+        cuerpo.seguirA()
     }
 
     method agregarHitboxes() { cuerpo.agregar() }
