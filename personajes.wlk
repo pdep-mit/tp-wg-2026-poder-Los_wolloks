@@ -7,6 +7,7 @@ import hud.*
 import disparos.*
 import mapa.*
 import items.*
+import sonidos.*
 
 
 object estudiante {
@@ -22,6 +23,8 @@ object estudiante {
     var property direccionDisparo = null
     var property defensa = sinEscudo
     var  orientacion = 1//1 mira a la derecha , 0 a la izquierda
+    const property sonidoRecibirDanio = "recibir_danio_estudiante.ogg"
+    const property sonidoMuerte = "muerte_estudiante.wav"
 
     var position = game.at(8, 8)
 
@@ -104,7 +107,10 @@ object estudiante {
         
         if (self.estaMuerto()) {
             self.morir()
-        }}
+            sonidos.muerte(self)
+        }
+        sonidos.recibirDanio(self)
+        }
     
     method restarVida(cantidad) { //Cuando no tiene escudo
         vida = 0.max(vida - cantidad)
@@ -142,7 +148,9 @@ class Enemigo {
     var property imagenMuerto
     
     var position // La posición debe pasarse al crear cada enemigo.
-
+    const property sonidoRecibirDanio = "recibir_danio_enemigo.wav"
+    const property sonidoMuerte = "muerte_enemigo.wav"
+    
     method position() = position
 
     const cuerpo = new Cuerpo(duenio = self)
@@ -179,14 +187,17 @@ class Enemigo {
     method recibirDanio(cantidad) {
         if (!self.estaMuerto()) {
             vida = 0.max(vida - cantidad)
+            sonidos.recibirDanio(self)
             if (self.estaMuerto()) {
                 self.morir()
             }
         }
+
     }
     
     method morir() {
         self.detenerMov()
+        sonidos.muerte(self)
         game.schedule(800, { self.retirar() })
     }
 
@@ -309,7 +320,7 @@ class EnemigoDivisible inherits Enemigo {
 
     // el escudo queda en la sala donde cae (no viaja a la siguiente)
     method tirarEscudo() {
-        const escudoDrop = new ItemEscudo(position = self.position().right(2))
+        const escudoDrop = new ItemEscudo(position = self.position().right(2),sonido_pick = "pick_escudo.mp3")
         mapa.salaActual().soltarItem(escudoDrop)
     }
 

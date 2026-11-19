@@ -156,9 +156,9 @@ class SalaDelTesoro inherits Sala {
   method itemDeLaSala() {
     if (item == null) {
       item = [
-        new ConstanciaAprobado(position = self.posicionDelItem()),
-        new ApuntesWollok(position = self.posicionDelItem()),
-        new CafeDelBuffet(position = self.posicionDelItem())
+        new ConstanciaAprobado(position = self.posicionDelItem(),sonido_pick = "recoger_item.mp3"),
+        new ApuntesWollok(position = self.posicionDelItem(),sonido_pick = "recoger_item.mp3"),
+        new CafeDelBuffet(position = self.posicionDelItem(),sonido_pick = "recoger_item.mp3")
       ].anyOne()
     }
     return item

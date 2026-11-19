@@ -1,6 +1,6 @@
 import wollok.game.*
 import personajes.*
-
+import sonidos.*
 object mensajeItem {
   var property text = ""
   var visible = false
@@ -32,7 +32,7 @@ object mensajeItem {
 class ItemPedestal {
   var property position
   var agarrado = false
-
+  const property sonido_pick
   method fueAgarrado() = agarrado
 
   method image()
@@ -51,6 +51,7 @@ class ItemPedestal {
       agarrado = true
       self.efecto(personaje)
       mensajeItem.mostrar(self.titulo(), self.descripcion())
+      sonidos.recogerItem(self)
       game.removeVisual(self)
     }
   }

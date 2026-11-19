@@ -1,6 +1,7 @@
 import wollok.game.*
 import configGenerales.*
 import personajes.*
+import sonidos.*
 
 object arma {
   // colección de proyectiles en pantalla (para limpiarlos al cambiar de sala)
@@ -16,6 +17,7 @@ object arma {
     )
     proyectilesActivos.add(nuevaLagrima)
     game.addVisual(nuevaLagrima)
+    sonidos.disparo()
     nuevaLagrima.iniciarMov()
     game.schedule(recarga, { tirador.finalizarRecarga() })
   }
