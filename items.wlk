@@ -17,6 +17,7 @@ object mensajeItem {
       game.addVisual(self)
       visible = true
     }
+    
     // solo oculta si no apareció otro mensaje mientras tanto
     game.schedule(3000, { if (miNumero == numero) self.ocultar() })
   }

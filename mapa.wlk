@@ -3,7 +3,7 @@ import personajes.*
 import items.*
 import disparos.*
 import configGenerales.*
-
+import sonidos.*
 // ------------------------------------------------------------
 // Puerta: salida en el borde de una sala que lleva a otra sala.
 // Se dibuja como una flecha hacia donde se sale, y como una cruz
@@ -31,6 +31,7 @@ class Puerta {
   method atravesar() {
     if (self.estaAbierta()) {
       mapa.cambiarA(destino, aparecerEn)
+      sonidos.abrirPuerta()
     } else {
       game.say(estudiante, "Primero hay que aprobar a todos los parciales")
     }
@@ -50,6 +51,7 @@ class Sala {
   const property enemigos
   const itemsSueltos = []
   var puertasCargadas = []
+  const property sonidoFondo 
 
   method puertas() = []
 
@@ -60,6 +62,7 @@ class Sala {
     self.enemigosVivos().forEach({ enemigo => enemigo.aparecer() })
     self.itemsSinAgarrar().forEach({ item => self.mostrarItemSuelto(item) })
     self.cargarExtras()
+    sonidos.sonidoFondoSala(self)
   }
 
   method descargar() {
@@ -156,9 +159,9 @@ class SalaDelTesoro inherits Sala {
   method itemDeLaSala() {
     if (item == null) {
       item = [
-        new ConstanciaAprobado(position = self.posicionDelItem(),sonido_pick = "recoger_item.mp3"),
-        new ApuntesWollok(position = self.posicionDelItem(),sonido_pick = "recoger_item.mp3"),
-        new CafeDelBuffet(position = self.posicionDelItem(),sonido_pick = "recoger_item.mp3")
+        new ConstanciaAprobado(position = self.posicionDelItem(),sonido_pick = "recoger_items.mp3"),
+        new ApuntesWollok(position = self.posicionDelItem(),sonido_pick = "recoger_items.mp3"),
+        new CafeDelBuffet(position = self.posicionDelItem(),sonido_pick = "recoger_items.mp3")
       ].anyOne()
     }
     return item
@@ -189,18 +192,25 @@ class SalaDelTesoro inherits Sala {
 //       |            |            |
 //  [Inicio] -> [B] -> [C]  ->    [D]
 // ------------------------------------------------------------
-object salaInicio inherits Sala(fondo = "sala-normal.png", enemigos = []) {
+object salaInicio inherits Sala(fondo = "sala-normal.png", enemigos = [],sonidoFondo="salaInicioo.mp3") {
   override method puertas() = [self.puertaDerecha(salaB)]
 }
 
 // Sala B: dos parciales comunes (clase Parcial, imagen parcial.png).
-object salaB inherits Sala(
-  fondo = "sala-normal.png",
-  enemigos = [
-    new ParcialDivisible(position = game.at(20, 16)),
-    new Parcial(position = game.at(20, 4))
-  ]
-) {
+object salaB inherits Sala(fondo = "sala-normal.png",enemigos = [new ParcialDivisible(position = game.at(20, 16)),new Parcial(position = game.at(20, 4))],sonidoFondo="salaIntermedia.mp3") {
+ const property salaCompletada = "salaCompletada.mp3"
+ var salaYaCompletada = false
+
+ override method estaLimpia() {
+    const limpia = enemigos.all({ enemigo => enemigo.estaMuerto() })
+
+    if (limpia and !salaYaCompletada) {
+        salaYaCompletada = true
+        sonidos.salaCompletada()
+    }
+
+    return limpia
+ }
   override method puertas() = [
     self.puertaIzquierda(salaInicio),
     self.puertaDerecha(salaC),
@@ -209,27 +219,44 @@ object salaB inherits Sala(
 }
 
 // Sala C: un parcial Prolog (tirador).
-object salaC inherits Sala(
-  fondo = "sala-normal.png",
-  enemigos = [
-    new ParcialTirador(position = game.at(20, 10))
-  ]
-) {
+object salaC inherits Sala( fondo = "sala-normal.png", enemigos = [new ParcialTirador(position = game.at(20, 10))],sonidoFondo="salaIntermedia.mp3") {
+  const property salaCompletada = "salaCompletada.mp3"
+  var salaYaCompletada = false
+
+  override method estaLimpia() {
+      const limpia = enemigos.all({ enemigo => enemigo.estaMuerto() })
+
+      if (limpia and !salaYaCompletada) {
+          salaYaCompletada = true
+          sonidos.salaCompletada()
+      }
+
+      return limpia
+  } 
+ 
   override method puertas() = [
     self.puertaIzquierda(salaB),
     self.puertaDerecha(salaD),
     self.puertaArriba(salaDelTesoroC)
   ]
+  
 }
 
 // Sala D: un parcial divisible y un parcial tirador.
-object salaD inherits Sala(
-  fondo = "sala-normal.png",
-  enemigos = [
-    new Parcial(position = game.at(20, 16)),
-    new ParcialTirador(position = game.at(20, 4))
-  ]
-) {
+object salaD inherits Sala( fondo = "sala-normal.png",enemigos = [new Parcial(position = game.at(20, 16)),new ParcialTirador(position = game.at(20, 4))],sonidoFondo="salaIntermedia.mp3") {
+  const property salaCompletada = "salaCompletada.mp3"
+  var salaYaCompletada = false
+
+  override method estaLimpia() {
+      const limpia = enemigos.all({ enemigo => enemigo.estaMuerto() })
+
+      if (limpia and !salaYaCompletada) {
+          salaYaCompletada = true
+          sonidos.salaCompletada()
+      }
+
+      return limpia
+  }
   override method puertas() = [
     self.puertaIzquierda(salaC),
     self.puertaArriba(salaDelTesoroD)
@@ -237,15 +264,15 @@ object salaD inherits Sala(
 }
 
 
-object salaDelTesoro inherits SalaDelTesoro(fondo = "sala-del-tesoro.png", enemigos = []) {
+object salaDelTesoro inherits SalaDelTesoro(fondo = "sala-del-tesoro.png", enemigos = [],sonidoFondo="salaTesoro.mp3") {
   override method puertas() = [self.puertaAbajo(salaB)]
 }
 
-object salaDelTesoroC inherits SalaDelTesoro(fondo = "sala-del-tesoro.png", enemigos = []) {
+object salaDelTesoroC inherits SalaDelTesoro(fondo = "sala-del-tesoro.png", enemigos = [],sonidoFondo="salaTesoro.mp3") {
   override method puertas() = [self.puertaAbajo(salaC)]
 }
 
-object salaDelTesoroD inherits SalaDelTesoro(fondo = "sala-del-tesoro.png", enemigos = []) {
+object salaDelTesoroD inherits SalaDelTesoro(fondo = "sala-del-tesoro.png", enemigos = [],sonidoFondo="salaTesoro.mp3") {
   override method puertas() = [self.puertaAbajo(salaD)]
 }
 

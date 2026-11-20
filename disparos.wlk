@@ -17,7 +17,7 @@ object arma {
     )
     proyectilesActivos.add(nuevaLagrima)
     game.addVisual(nuevaLagrima)
-    sonidos.disparo()
+    sonidos.disparo(tirador)
     nuevaLagrima.iniciarMov()
     game.schedule(recarga, { tirador.finalizarRecarga() })
   }

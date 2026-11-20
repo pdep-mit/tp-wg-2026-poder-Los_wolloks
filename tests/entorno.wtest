@@ -42,7 +42,7 @@ describe "Entorno: límites del tablero y sala del tesoro" {
 
 describe "Ítems: efecto sobre el estudiante" {
 
-  const constancia = new ConstanciaAprobado(position = game.at(1, 1))
+  const constancia = new ConstanciaAprobado(position = game.at(1, 1),sonido_pick ="recoger_item.mp3")
   const parcial = new Parcial(position = game.at(2,2))
   test "La constancia de aprobado suma 1 de vida" {
     constancia.efecto(estudiante)

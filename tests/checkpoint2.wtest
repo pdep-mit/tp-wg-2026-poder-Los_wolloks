@@ -161,9 +161,9 @@ describe "Enemigos: comportamiento polimórfico" {
 // ------------------------------------------------------------
 describe "Ítems: efectos individuales y combinados" {
 
-  const constancia = new ConstanciaAprobado(position = game.at(1, 1))
-  const apuntes = new ApuntesWollok(position = game.at(1, 1))
-  const cafe = new CafeDelBuffet(position = game.at(1, 1))
+  const constancia = new ConstanciaAprobado(position = game.at(1, 1),sonido_pick ="recoger_item.mp3" )
+  const apuntes = new ApuntesWollok(position = game.at(1, 1),sonido_pick ="recoger_item.mp3")
+  const cafe = new CafeDelBuffet(position = game.at(1, 1),sonido_pick ="recoger_item.mp3")
 
   test "Los apuntes de Wollok suman 1 de daño" {
     apuntes.efecto(estudiante)
@@ -251,14 +251,14 @@ describe "Mapa: salas, enemigos por sala y puertas" {
   }
 
   test "Una sala con enemigos vivos no está limpia" {
-    const sala = new Sala(fondo = "f.png", enemigos = [self.enemigoEn(1, 1), self.enemigoEn(2, 2)])
+    const sala = new Sala(fondo = "f.png", enemigos = [self.enemigoEn(1, 1), self.enemigoEn(2, 2)],sonidoFondo = " ")
     assert.notThat(sala.estaLimpia())
   }
 
   test "Una sala con algún enemigo vivo todavía no está limpia" {
     const e1 = self.enemigoEn(1, 1)
     const e2 = self.enemigoEn(2, 2)
-    const sala = new Sala(fondo = "f.png", enemigos = [e1, e2])
+    const sala = new Sala(fondo = "f.png", enemigos = [e1, e2],sonidoFondo = " ")
     e1.vida(0)
     assert.notThat(sala.estaLimpia())
   }
@@ -266,7 +266,7 @@ describe "Mapa: salas, enemigos por sala y puertas" {
   test "Una sala queda limpia cuando mueren todos sus enemigos" {
     const e1 = self.enemigoEn(1, 1)
     const e2 = self.enemigoEn(2, 2)
-    const sala = new Sala(fondo = "f.png", enemigos = [e1, e2])
+    const sala = new Sala(fondo = "f.png", enemigos = [e1, e2],sonidoFondo = " ")
     e1.vida(0)
     e2.vida(0)
     assert.that(sala.estaLimpia())
@@ -275,7 +275,7 @@ describe "Mapa: salas, enemigos por sala y puertas" {
   test "enemigosVivos solo devuelve los enemigos que siguen con vida" {
     const e1 = self.enemigoEn(1, 1)
     const e2 = self.enemigoEn(2, 2)
-    const sala = new Sala(fondo = "f.png", enemigos = [e1, e2])
+    const sala = new Sala(fondo = "f.png", enemigos = [e1, e2],sonidoFondo = " ")
     e1.vida(0)
     assert.equals([e2], sala.enemigosVivos())
   }
@@ -304,7 +304,7 @@ describe "Mapa: salas, enemigos por sala y puertas" {
   }
 
   test "Una puerta está cerrada si su sala de origen tiene enemigos vivos" {
-    const sala = new Sala(fondo = "f.png", enemigos = [self.enemigoEn(1, 1)])
+    const sala = new Sala(fondo = "f.png", enemigos = [self.enemigoEn(1, 1)],sonidoFondo = " ")
     const puerta = new Puerta(
       position = game.at(10, 10), destino = salaInicio,
       aparecerEn = game.at(2, 2), origen = sala, imagenAbierta = "flecha.png"
@@ -315,7 +315,7 @@ describe "Mapa: salas, enemigos por sala y puertas" {
 
   test "Una puerta se abre cuando la sala de origen queda limpia" {
     const enemigo = self.enemigoEn(1, 1)
-    const sala = new Sala(fondo = "f.png", enemigos = [enemigo])
+    const sala = new Sala(fondo = "f.png", enemigos = [enemigo],sonidoFondo = " ")
     const puerta = new Puerta(
       position = game.at(10, 10), destino = salaInicio,
       aparecerEn = game.at(2, 2), origen = sala, imagenAbierta = "flecha.png"

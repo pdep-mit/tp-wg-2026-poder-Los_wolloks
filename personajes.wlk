@@ -23,8 +23,10 @@ object estudiante {
     var property direccionDisparo = null
     var property defensa = sinEscudo
     var  orientacion = 1//1 mira a la derecha , 0 a la izquierda
-    const property sonidoRecibirDanio = "recibir_danio_estudiante.ogg"
-    const property sonidoMuerte = "muerte_estudiante.wav"
+    const property sonidoRecibirDanio = "daño_estudiante.ogg"
+    const property sonidoMuerte = "muerte_estudiantee.wav"
+    const property sonidoDisparo = "disparosPapel.wav" 
+
 
     var position = game.at(8, 8)
 
@@ -150,7 +152,8 @@ class Enemigo {
     var position // La posición debe pasarse al crear cada enemigo.
     const property sonidoRecibirDanio = "recibir_danio_enemigo.wav"
     const property sonidoMuerte = "muerte_enemigo.wav"
-    
+    const property sonidoDisparo = "disparosEnemigo.wav"  
+
     method position() = position
 
     const cuerpo = new Cuerpo(duenio = self)
