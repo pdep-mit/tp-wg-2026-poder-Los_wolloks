@@ -3,8 +3,9 @@ import personajes.*
 import items.*
 import disparos.*
 import configGenerales.*
-import sonidos.*
 import jefe.*
+import sonidos.*
+
 // ------------------------------------------------------------
 // Puerta: salida en el borde de una sala que lleva a otra sala.
 // Se dibuja como una flecha hacia donde se sale, y como una cruz
@@ -260,7 +261,8 @@ object salaD inherits Sala( fondo = "sala-normal.png",enemigos = [new Parcial(po
   }
   override method puertas() = [
     self.puertaIzquierda(salaC),
-    self.puertaArriba(salaDelTesoroD)
+    self.puertaArriba(salaDelTesoroD),
+    self.puertaDerecha(salaDelJefe)
   ]
 }
 

@@ -203,6 +203,6 @@ const jefeFinal = new JefeFinal(
 
 // Sala del jefe: se entra por la derecha de salaC.
 // Su puerta de vuelta se abre solo cuando el jefe esta derrotado.
-object salaDelJefe inherits Sala(fondo = "sala-normal.png", enemigos = [jefeFinal]) {
+object salaDelJefe inherits Sala(fondo = "sala-normal.png", enemigos = [jefeFinal],sonidoFondo = "salaFinal.mp3") {
   override method puertas() = [self.puertaIzquierda(salaC)]
 }
