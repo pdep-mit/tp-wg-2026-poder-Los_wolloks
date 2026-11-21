@@ -43,7 +43,7 @@ describe "Entorno: límites del tablero y sala del tesoro" {
 describe "Ítems: efecto sobre el estudiante" {
 
   const constancia = new ConstanciaAprobado(position = game.at(1, 1))
-
+  const parcial = new Parcial(position = game.at(2,2))
   test "La constancia de aprobado suma 1 de vida" {
     constancia.efecto(estudiante)
     assert.equals(4, estudiante.vida())
@@ -69,6 +69,7 @@ describe "Ítems: efecto sobre el estudiante" {
   }
 
   test "Un enemigo que toca el ítem no lo activa" {
+    
     parcial.chocarItem(constancia)
     assert.equals(3, estudiante.vida())
     assert.equals(3, estudiante.vidaMaxima())

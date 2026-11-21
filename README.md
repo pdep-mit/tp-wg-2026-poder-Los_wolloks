@@ -21,11 +21,12 @@ Recuerden que para cada checkpoint hay [expectativas mínimas](https://docs.goog
 - Para la demo final, crear un nuevo tag **demo** y actualizar este README con todo lo necesario.
 
 # Cómo jugar
-
+Explorá las salas, sobreviví a los ataques de los parciales y conseguí ítems para mejorar tus habilidades. Usá tus disparos para derrotar a los enemigos antes de que te alcancen.
 
 ## Objetivo
-Sos un estudiante de la UTN FRBA que tiene que sobrevivir a los parciales moviéndose por la sala, disparando a los enemigos (parciales) antes de que te alcancen y juntando items en la sala del tesoro para volverte más fuerte.
+Sos Uriel Tadeo Nicolás Fernández Ramírez Bustamante Alvarado (las iniciales de tu nombre curiosamente deletrean UTN FRBA, como si tu destino fuera cursar acá), un estudiante que tiene que sobrevivir a los malvados parciales del Rasta, un profesor loco que los invoca como quien se manda una recursión infinita sin caso base. Sus parciales pueden ser de distintos tipos y usar diferentes métodos de ataque (perseguirte, dispararte o incluso dividirse), pero todos entienden el mismo mensaje: arruinarteElCuatrimestre().
 
+Movete por las salas, disparales a los parciales antes de que te alcancen y juntá ítems en las salas del tesoro para volverte más fuerte. ¿Lograrás sobrevivir a la cursada o terminarás siendo otra víctima del Rasta?
 
 ## Controles
 

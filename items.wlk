@@ -1,6 +1,6 @@
 import wollok.game.*
 import personajes.*
-
+import sonidos.*
 object mensajeItem {
   var property text = ""
   var visible = false
@@ -32,7 +32,7 @@ object mensajeItem {
 class ItemPedestal {
   var property position
   var agarrado = false
-
+  const property sonido_pick
   method fueAgarrado() = agarrado
 
   method image()
@@ -43,11 +43,15 @@ class ItemPedestal {
   // los disparos pasan de largo por el item
   method chocarProyectil(proyectil) { }
 
+  // si dos items se superponen, se ignoran entre sí
+  method chocarItem(item) { }
+
   method chocarEstudiante(personaje) {
     if (!agarrado) {
       agarrado = true
       self.efecto(personaje)
       mensajeItem.mostrar(self.titulo(), self.descripcion())
+      sonidos.recogerItem(self)
       game.removeVisual(self)
     }
   }
@@ -88,13 +92,13 @@ class ItemEscudo inherits ItemPedestal {
     override method descripcion() = "+5 vida" 
     
     override method efecto(personaje) {
-        personaje.defensa(new DefensaEscudo(vida = 5))
+        personaje.defensa(new DefensaEscudo())
     }
 }
 
 //ItemEscudo crea un escudo DefensaEscudo ya que por heredar ItemPedestal, desaparece al ser agarrado
-class DefensaEscudo { //Podria ser objeto si solo hacemos uno
-    var property vida 
+class DefensaEscudo { 
+    var property vida = 5
 
     method absorberDanio(cantidad, personaje) {
         vida = 0.max(vida - cantidad)
