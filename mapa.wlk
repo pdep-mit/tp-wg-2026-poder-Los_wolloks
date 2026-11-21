@@ -3,6 +3,7 @@ import personajes.*
 import items.*
 import disparos.*
 import configGenerales.*
+import jefe.*
 
 // ------------------------------------------------------------
 // Puerta: salida en el borde de una sala que lleva a otra sala.
