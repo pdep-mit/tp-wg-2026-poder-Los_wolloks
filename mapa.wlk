@@ -3,6 +3,7 @@ import personajes.*
 import items.*
 import disparos.*
 import configGenerales.*
+import jefe.*
 
 // ------------------------------------------------------------
 // Puerta: salida en el borde de una sala que lleva a otra sala.
@@ -137,7 +138,7 @@ object salaB inherits Sala(
 ) {
   override method puertas() = [
     self.puertaIzquierda(salaInicio),
-    self.puertaDerecha(salaC),
+    self.puertaDerecha(salaDelJefe),
     self.puertaArriba(salaDelTesoro),
     self.puertaAbajo(salaD)
   ]
@@ -214,7 +215,7 @@ object pedestal {
 // El mapa conoce las salas y cuál es la actual.
 // ------------------------------------------------------------
 object mapa {
-  const property salas = [salaInicio, salaB, salaC, salaD, salaDelTesoro]
+  const property salas = [salaInicio, salaB, salaC, salaD, salaDelTesoro, salaDelJefe]
   var property salaActual = salaInicio
 
   method iniciar() {

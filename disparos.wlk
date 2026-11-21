@@ -33,10 +33,10 @@ class Proyectil {
   var property position
   var property direccion
   var property velocidad = 1
-   var property danio
+  var property danio
   var property contraEstudiante = false
   var activo = true
-  
+
   method image() = "lagrima.png"
 
   method iniciarMov() {
@@ -48,15 +48,18 @@ class Proyectil {
     self.detectarChoques()
   }
 
+  // Revisa a mano con quien comparte celda, una vez por paso.
+  // Se evita game.onCollideDo porque el motor nunca elimina esos manejadores:
+  // cada proyectil dejaba uno vivo para siempre y el juego se iba frenando.
   method detectarChoques() {
-    game.onCollideDo(
-      self,
-      { objetoChoque => objetoChoque.chocarProyectil(self) }
-    )
+    game.colliders(self).forEach({ objetoChoque =>
+      if (activo) { objetoChoque.chocarProyectil(self) }
+    })
   }
-  method chocarProyectil(otroProyectil){}
-  method chocarItem(item){}
-  
+
+  method chocarProyectil(otroProyectil) {}
+  method chocarItem(item) {}
+
   method avanzar() {
     const xSiguiente = position.x() + direccion.x()
     const ySiguiente = position.y() + direccion.y()
@@ -66,6 +69,7 @@ class Proyectil {
       self.destruir()
     } else {
       self.position(game.at(xSiguiente, ySiguiente))
+      self.detectarChoques()
     }
   }
 
