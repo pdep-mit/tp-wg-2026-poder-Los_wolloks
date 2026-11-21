@@ -4,6 +4,7 @@ import items.*
 import disparos.*
 import configGenerales.*
 import sonidos.*
+import jefe.*
 // ------------------------------------------------------------
 // Puerta: salida en el borde de una sala que lleva a otra sala.
 // Se dibuja como una flecha hacia donde se sale, y como una cruz

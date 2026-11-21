@@ -1,0 +1,61 @@
+import jefe.*
+import personajes.*
+import wollok.game.*
+
+describe "jefe final" {
+  test "aparece con su barra y sus hitboxes" {
+    const antes = game.allVisuals().size()
+    jefeFinal.aparecer()
+    // jefe + 3 hitboxes + 10 segmentos de barra
+    assert.equals(antes + 14, game.allVisuals().size())
+  }
+
+  test "al bajar del 75% invoca una oleada de 2 minis" {
+    jefeFinal.aparecer()
+    const antes = game.allVisuals().size()
+    jefeFinal.recibirDanio(7)   // 25 -> 18 (72%)
+    // 2 minis * (1 visual + 3 hitboxes)
+    assert.equals(antes + 8, game.allVisuals().size())
+  }
+
+  test "no invoca otra oleada hasta cruzar el siguiente umbral" {
+    jefeFinal.aparecer()
+    jefeFinal.recibirDanio(7)
+    const despuesDeLaPrimera = game.allVisuals().size()
+    jefeFinal.recibirDanio(1)   // 17 (68%): todavia entre 75% y 50%
+    assert.equals(despuesDeLaPrimera, game.allVisuals().size())
+  }
+
+  test "al bajar del 50% invoca la segunda oleada" {
+    jefeFinal.aparecer()
+    jefeFinal.recibirDanio(7)
+    const despuesDeLaPrimera = game.allVisuals().size()
+    jefeFinal.recibirDanio(6)   // 11 (44%)
+    assert.equals(despuesDeLaPrimera + 8, game.allVisuals().size())
+  }
+
+  test "al bajar del 25% invoca la tercera oleada, de 3 minis" {
+    jefeFinal.aparecer()
+    jefeFinal.recibirDanio(7)
+    jefeFinal.recibirDanio(6)
+    const antes = game.allVisuals().size()
+    jefeFinal.recibirDanio(6)   // 5 (20%)
+    assert.equals(antes + 12, game.allVisuals().size())
+  }
+
+  test "el jefe huye si el estudiante esta cerca" {
+    jefeFinal.aparecer()
+    estudiante.position(jefeFinal.position().left(3))
+    const distanciaAntes = jefeFinal.position().distance(estudiante.position())
+    jefeFinal.acercarseAenemigo()
+    assert.that(jefeFinal.position().distance(estudiante.position()) > distanciaAntes)
+  }
+
+  test "el jefe no se mueve si el estudiante esta lejos" {
+    jefeFinal.aparecer()
+    estudiante.position(game.at(1, 1))
+    const antes = jefeFinal.position()
+    jefeFinal.acercarseAenemigo()
+    assert.equals(antes, jefeFinal.position())
+  }
+}
