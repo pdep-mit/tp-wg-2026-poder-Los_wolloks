@@ -1,6 +1,7 @@
 import wollok.game.*
 import personajes.*
 import sonidos.*
+import hud.*
 object mensajeItem {
   var property text = ""
   var visible = false
@@ -94,6 +95,7 @@ class ItemEscudo inherits ItemPedestal {
     
     override method efecto(personaje) {
         personaje.defensa(new DefensaEscudo())
+        hud.actualizarEscudos()
     }
 }
 
@@ -105,6 +107,7 @@ class DefensaEscudo {
         vida = 0.max(vida - cantidad)
         if (vida == 0) {
             personaje.defensa(sinEscudo)
+            hud.quitarEscudos()
         }
     }
     method sufijoVisual() = "_escudo"
