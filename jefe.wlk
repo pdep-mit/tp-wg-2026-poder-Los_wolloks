@@ -75,7 +75,7 @@ class JefeFinal inherits Enemigo {
     const mejor = [haciaArriba, haciaAbajo, haciaLaDerecha, haciaLaIzquierda]
       .max({ direccion => direccion.posicionSig(self).distance(estudiante.position()) })
     if (mejor.posicionSig(self).distance(estudiante.position()) > distanciaActual) {
-      movimiento.mover(self, mejor)
+      self.intentarMoverse(mejor)
     }
   }
 

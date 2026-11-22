@@ -144,7 +144,7 @@ class Enemigo {
     var property vidaMaxima
     var property danio
     var property velocidad = 1
-    
+
     var property imagenDaniado
     var property imagenEnemigo
     var property imagenMuerto
@@ -235,10 +235,42 @@ class Enemigo {
     method atacar() {
         estudiante.chocarEnemigo(self)
     }
+method distanciaMinimaCompanieros()=3
+method companierosVivos() =mapa.salaActual().enemigosVivos().filter({enemigo => enemigo != self})
+method estaCercaDePosicion(posicion,distancia)=
+(position.x()-posicion.x()).abs()<distancia and (position.y()-posicion.y()).abs()<distancia
 
-    method perseguir() {
-        movimiento.mover(self, self.direccionHorizontal())
-        movimiento.mover(self, self.direccionVertical())
+method companieroCercaDe(posicion)=self.companierosVivos().any({otro=>otro.estaCercaDePosicion(posicion, self.distanciaMinimaCompanieros())})
+method intentarMoverse(direccion) {
+  if (direccion.esMovimiento()) {
+    const destino = direccion.posicionSig(self)
+    if (destino != position and !self.companieroCercaDe(destino)) {
+      movimiento.mover(self, direccion)
+      return true
+    } else {
+      return false
+    }
+  } else {
+    return false
+  }
+}
+method intentarRodear() {
+        const direcciones = [haciaArriba, haciaAbajo, haciaLaDerecha, haciaLaIzquierda]
+        const libres = direcciones.filter({ dir =>
+            const destino = dir.posicionSig(self)
+            destino != position and !self.companieroCercaDe(destino)
+        })
+        if (!libres.isEmpty()) {
+            movimiento.mover(self, libres.anyOne())
+        }
+    }
+   method perseguir() {
+        const avanzoHorizontal = self.intentarMoverse(self.direccionHorizontal())
+        const avanzoVertical = self.intentarMoverse(self.direccionVertical())
+
+      if (!avanzoHorizontal and !avanzoVertical) {
+            self.intentarRodear()
+        }
     }
 
     method estaAlLadoDelEstudiante() {
