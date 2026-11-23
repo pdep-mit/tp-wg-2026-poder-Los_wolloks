@@ -1,3 +1,4 @@
+import pantallas.*
 import wollok.game.*
 import personajes.*
 import movimientos.*
@@ -176,6 +177,7 @@ class JefeFinal inherits Enemigo {
     // al caer el jefe, los mini parciales caen con el
     minis.forEach({ mini => mini.recibirDanio(mini.vida()) })
     super()
+    game.schedule(1000,{gestorPantallas.mostrarVictoria()})
   }
 
   override method retirar() {
@@ -188,6 +190,14 @@ class JefeFinal inherits Enemigo {
       minis.forEach({ mini => mini.retirar() })
     }
     super()
+  }
+
+  override method reiniciar() {
+    super()
+    oleadasInvocadas = 0
+    minis.clear()
+    puedeDisparar = true
+    activo = false
   }
 }
 

@@ -5,6 +5,7 @@ import disparos.*
 import items.*
 import hud.*
 import mapa.*
+import pantallas.*
 
 
 
@@ -18,6 +19,11 @@ object config {
 
   method configurarJuego() {
     self.configurarVentana()
+    gestorPantallas.mostrarIntro()
+  }
+
+  //Despues de la intro
+  method iniciarPartida() {
     mapa.iniciar()
     self.agregarComponentesVisuales()
     self.configurarAcciones()

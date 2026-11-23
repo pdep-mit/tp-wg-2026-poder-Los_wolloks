@@ -75,6 +75,11 @@ class Sala {
     self.descargarExtras()
   }
 
+  method reiniciar() {
+    itemsSueltos.clear()
+    enemigos.forEach({ enemigo => enemigo.reiniciar() }) // restaurar vida = vidaMaxima
+  }
+
   // Un enemigo que aparece en medio de la partida (por ejemplo, los que suelta
   // el parcial divisible) pasa a ser de la sala: hay que derrotarlo para abrir las puertas.
   method agregarEnemigo(enemigo) {
@@ -313,4 +318,9 @@ object mapa {
   }
 
   method todasLasSalasLimpias() = salas.all({ sala => sala.estaLimpia() })
+
+  method reiniciar(){
+    salaActual = salaInicio
+    salas.forEach{sala => sala.reiniciar()}
+  }
 }

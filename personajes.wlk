@@ -1,3 +1,4 @@
+import pantallas.*
 import wollok.game.*
 import movimientos.*
 import estados.*
@@ -8,6 +9,7 @@ import disparos.*
 import mapa.*
 import items.*
 import sonidos.*
+import configGenerales.*
 
 
 object estudiante {
@@ -124,7 +126,8 @@ object estudiante {
         puedeDisparar = false
         game.say(self, "Nos vemos en el recu")
         game.schedule(1000, { game.removeVisual(self) })
-        game.schedule(300, { game.stop() })
+        game.schedule(1000,{gestorPantallas.mostrarDerrota()}); //ya mostrar derrota limpia y permite volver a jugar 
+       
     }
 
     method ganarVida(cantidad) {
@@ -135,6 +138,15 @@ object estudiante {
 
     method chocarItem(item) {
         item.chocarEstudiante(self)
+    }
+
+    method reiniciar() {
+        puedeMoverse = true
+        puedeDisparar = true
+        vida = vidaMaxima
+        defensa = sinEscudo
+        position = game.at(config.anchoMax().div(2) - 1, 2) // posición inicial
+        // y resetear cualquier stat que hayan subido los ítems (danio, velocidadAtaque)
     }
 }
 
@@ -149,7 +161,9 @@ class Enemigo {
     var property imagenEnemigo
     var property imagenMuerto
     
-    var position // La posición debe pasarse al crear cada enemigo.
+    
+    var position   // La posición debe pasarse al crear cada enemigo.
+    const positionInicial = position
     const property sonidoRecibirDanio = "recibir_danio_enemigo.wav"
     const property sonidoMuerte = "muerte_enemigo.wav"
     const property sonidoDisparo = "disparosEnemigo.wav"  
@@ -226,6 +240,12 @@ class Enemigo {
         }
     }
     
+    method reiniciar(){
+        vida = vidaMaxima
+        position = positionInicial
+    
+    }
+
     method estados() = [atacando, persiguiendo]
 
     method acercarseAenemigo() {
@@ -364,6 +384,11 @@ class EnemigoDivisible inherits Enemigo {
         mapa.salaActual().agregarEnemigo(self.hijoEn(self.position().left(separacion)))
         mapa.salaActual().agregarEnemigo(self.hijoEn(self.position().right(separacion)))
         self.tirarEscudo()
+    }
+
+    override method reiniciar() {
+        super()
+        yaSeDividio = false
     }
 
     method hijoEn(posicion) = new EnemigoDivisible(
