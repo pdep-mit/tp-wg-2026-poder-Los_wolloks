@@ -219,7 +219,7 @@ class SalaDelTesoro inherits Sala {
 //       |            |            |
 //  [Inicio] -> [B] -> [C]  ->    [D]
 // ------------------------------------------------------------
-object salaInicio inherits Sala(fondo = "intro.png", enemigos = [],sonidoFondo="salaInicioo.mp3") {
+object salaInicio inherits Sala(fondo = "sala-normal.png", enemigos = [],sonidoFondo="salaInicioo.mp3") {
   override method puertas() = [self.puertaDerecha(salaB)]
 }
 
