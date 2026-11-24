@@ -52,6 +52,7 @@ class Sala {
   const property fondo
   const property enemigos
   const itemsSueltos = []
+  const enemigosAgregados = []
   var puertasCargadas = []
   const property sonidoFondo 
 
@@ -77,6 +78,9 @@ class Sala {
 
   method reiniciar() {
     itemsSueltos.clear()
+    // los enemigos que aparecieron en medio de la partida (hijos del divisible) se descartan
+    enemigos.removeAll(enemigosAgregados)
+    enemigosAgregados.clear()
     enemigos.forEach({ enemigo => enemigo.reiniciar() }) // restaurar vida = vidaMaxima
   }
 
@@ -84,6 +88,7 @@ class Sala {
   // el parcial divisible) pasa a ser de la sala: hay que derrotarlo para abrir las puertas.
   method agregarEnemigo(enemigo) {
     enemigos.add(enemigo)
+    enemigosAgregados.add(enemigo)
     enemigo.aparecer()
   }
 
@@ -188,6 +193,12 @@ class SalaDelTesoro inherits Sala {
     if (item != null and !item.fueAgarrado()) {
       game.removeVisual(item)
     }
+  }
+
+  // al reiniciar se elige un ítem nuevo (el anterior ya pudo haber sido agarrado)
+  override method reiniciar() {
+    super()
+    item = null
   }
 }
 
@@ -298,7 +309,7 @@ object pedestal {
 // El mapa conoce las salas y cuál es la actual.
 // ------------------------------------------------------------
 object mapa {
-  const property salas = [salaInicio, salaB, salaC, salaD, salaDelTesoro, salaDelTesoroC, salaDelTesoroD]
+  const property salas = [salaInicio, salaB, salaC, salaD, salaDelJefe, salaDelTesoro, salaDelTesoroC, salaDelTesoroD]
   var property salaActual = salaInicio
 
   method iniciar() {

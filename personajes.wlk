@@ -140,13 +140,18 @@ object estudiante {
         item.chocarEstudiante(self)
     }
 
+    // vuelve a los valores iniciales (los mismos de arriba), incluidos los que cambian los ítems
     method reiniciar() {
+        vidaMaxima = 3
+        vida = 3
+        danio = 1
+        velocidad = 1
+        velocidadAtaque = 800
+        orientacion = 1
         puedeMoverse = true
         puedeDisparar = true
-        vida = vidaMaxima
         defensa = sinEscudo
         position = game.at(config.anchoMax().div(2) - 1, 2) // posición inicial
-        // y resetear cualquier stat que hayan subido los ítems (danio, velocidadAtaque)
     }
 }
 
