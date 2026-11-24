@@ -111,10 +111,14 @@ class DefensaEscudo {
         }
     }
     method sufijoVisual() = "_escudo"
+    method actualizarHud() {
+        hud.actualizarEscudos()
+    }
 }
 object sinEscudo {
     method absorberDanio(cantidad, personaje) {
         personaje.restarVida(cantidad)
     }
     method sufijoVisual() = ""
+    method actualizarHud() { }
 }

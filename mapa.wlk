@@ -5,6 +5,9 @@ import disparos.*
 import configGenerales.*
 import jefe.*
 import sonidos.*
+import pantallas.* 
+import hud.*
+
 
 // ------------------------------------------------------------
 // Puerta: salida en el borde de una sala que lleva a otra sala.
@@ -55,11 +58,14 @@ class Sala {
   const enemigosAgregados = []
   var puertasCargadas = []
   const property sonidoFondo 
+  var fondoVisual = null
 
   method puertas() = []
 
+
   method cargar() {
-    game.boardGround(fondo)
+    fondoVisual = new Pantalla(image = fondo)
+    game.addVisual(fondoVisual)          // primero, así queda debajo de todo
     puertasCargadas = self.puertas()
     puertasCargadas.forEach({ puerta => game.addVisual(puerta) })
     self.enemigosVivos().forEach({ enemigo => enemigo.aparecer() })
@@ -74,6 +80,7 @@ class Sala {
     puertasCargadas = []
     self.itemsSinAgarrar().forEach({ item => game.removeVisual(item) })
     self.descargarExtras()
+    game.removeVisual(fondoVisual)       // al final
   }
 
   method reiniciar() {
@@ -155,6 +162,8 @@ class Sala {
     origen = self,
     imagenAbierta = "flecha_abajo.png"
   )
+
+  
 }
 
 // ------------------------------------------------------------
@@ -210,7 +219,7 @@ class SalaDelTesoro inherits Sala {
 //       |            |            |
 //  [Inicio] -> [B] -> [C]  ->    [D]
 // ------------------------------------------------------------
-object salaInicio inherits Sala(fondo = "sala-normal.png", enemigos = [],sonidoFondo="salaInicioo.mp3") {
+object salaInicio inherits Sala(fondo = "intro.png", enemigos = [],sonidoFondo="salaInicioo.mp3") {
   override method puertas() = [self.puertaDerecha(salaB)]
 }
 
@@ -317,12 +326,21 @@ object mapa {
   }
 
   method cambiarA(sala, posicionDelEstudiante) {
-    salaActual.descargar()
-    arma.limpiar()
-    salaActual = sala
-    estudiante.position(posicionDelEstudiante)
-    sala.cargar()
-  }
+  salaActual.descargar()
+  arma.limpiar()
+  salaActual = sala
+  estudiante.position(posicionDelEstudiante)
+  sala.cargar()
+  self.traerAlFrente()
+}
+
+// el fondo de la sala nueva se agrega después que el estudiante y el HUD: los re-agrego para que queden arriba
+method traerAlFrente() {
+  game.removeVisual(estudiante)
+  game.addVisual(estudiante)
+  hud.actualizarCorazanes()
+  estudiante.defensa().actualizarHud()
+}
 
   method revisarPuertas() {
     salaActual.revisarPuertas(estudiante)
