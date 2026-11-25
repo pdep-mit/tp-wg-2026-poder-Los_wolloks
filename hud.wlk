@@ -42,10 +42,10 @@ object hud {
   }
   method crearCorazones(){
    corazones=(1..estudiante.vidaMaxima()).map({indice=>
-   new Corazon(
-indice=indice,
-position=game.at(indice-1,config.alturaMax()-2)
-       )
+      new Corazon(
+        indice=indice,
+        position=game.at(indice-1,config.alturaMax()-2)
+        )
    
      })
     }

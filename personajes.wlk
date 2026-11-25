@@ -198,7 +198,7 @@ class Enemigo {
 
     // Solo lo lastiman los proyectiles del estudiante
     method chocarProyectil(proyectil) {
-        if (!proyectil.contraEstudiante()) {
+        if (!self.estaMuerto() and !proyectil.contraEstudiante()) {
             self.recibirDanio(proyectil.danio())
             proyectil.destruir()
         }
@@ -220,6 +220,7 @@ class Enemigo {
     method morir() {
         self.detenerMov()
         sonidos.muerte(self)
+        cuerpo.sacar()
         game.schedule(800, { self.retirar() })
     }
 
@@ -254,41 +255,42 @@ class Enemigo {
     method estados() = [atacando, persiguiendo]
 
     method acercarseAenemigo() {
-        self.estados().find({ estado => estado.aplicaA(self) }).actuar(self)
+        self.estados().find
+        ({ estado => estado.aplicaA(self) }).actuar(self)
     }
 
     method atacar() {
         estudiante.chocarEnemigo(self)
     }
-method distanciaMinimaCompanieros()=3
-method companierosVivos() =mapa.salaActual().enemigosVivos().filter({enemigo => enemigo != self})
-method estaCercaDePosicion(posicion,distancia)=
-(position.x()-posicion.x()).abs()<distancia and (position.y()-posicion.y()).abs()<distancia
+    method distanciaMinimaCompanieros()=3
+    method companierosVivos() =mapa.salaActual().enemigosVivos().filter({enemigo => enemigo != self})
+    method estaCercaDePosicion(posicion,distancia)=
+    (position.x()-posicion.x()).abs()<distancia and (position.y()-posicion.y()).abs()<distancia
 
-method companieroCercaDe(posicion)=self.companierosVivos().any({otro=>otro.estaCercaDePosicion(posicion, self.distanciaMinimaCompanieros())})
-method intentarMoverse(direccion) {
-  if (direccion.esMovimiento()) {
-    const destino = direccion.posicionSig(self)
-    if (destino != position and !self.companieroCercaDe(destino)) {
-      movimiento.mover(self, direccion)
-      return true
-    } else {
-      return false
-    }
-  } else {
-    return false
-  }
-}
-method intentarRodear() {
-        const direcciones = [haciaArriba, haciaAbajo, haciaLaDerecha, haciaLaIzquierda]
-        const libres = direcciones.filter({ dir =>
-            const destino = dir.posicionSig(self)
-            destino != position and !self.companieroCercaDe(destino)
-        })
-        if (!libres.isEmpty()) {
-            movimiento.mover(self, libres.anyOne())
+    method companieroCercaDe(posicion)=self.companierosVivos().any({otro=>otro.estaCercaDePosicion(posicion, self.distanciaMinimaCompanieros())})
+    method intentarMoverse(direccion) {
+    if (direccion.esMovimiento()) {
+        const destino = direccion.posicionSig(self)
+        if (destino != position and !self.companieroCercaDe(destino)) {
+        movimiento.mover(self, direccion)
+        return true
+        } else {
+        return false
         }
+    } else {
+        return false
     }
+    }
+    method intentarRodear() {
+            const direcciones = [haciaArriba, haciaAbajo, haciaLaDerecha, haciaLaIzquierda]
+            const libres = direcciones.filter({ dir =>
+                const destino = dir.posicionSig(self)
+                destino != position and !self.companieroCercaDe(destino)
+            })
+            if (!libres.isEmpty()) {
+                movimiento.mover(self, libres.anyOne())
+            }
+        }
    method perseguir() {
         const avanzoHorizontal = self.intentarMoverse(self.direccionHorizontal())
         const avanzoVertical = self.intentarMoverse(self.direccionVertical())

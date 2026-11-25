@@ -5,6 +5,7 @@ import movimientos.*
 import disparos.*
 import configGenerales.*
 import mapa.*
+import sonidos.*
 
 // ------------------------------------------------------------
 // Estados propios del jefe. Siguen el mismo protocolo que estados.wlk
@@ -66,7 +67,7 @@ class JefeFinal inherits Enemigo {
 
   override method iniciarMov() {
     game.onTick(tiempoEntrePasos, self.nombreTick(), { self.acercarseAenemigo() })
-    game.onTick(250, self.nombreTickDisparo(), { self.disparar() })
+    game.onTick(500, self.nombreTickDisparo(), { self.disparar() })
   }
 
   // De las 4 direcciones, elige la que lo deja mas lejos del estudiante.
@@ -84,7 +85,7 @@ class JefeFinal inherits Enemigo {
   method enFaseFinal() = self.vida() <= self.vidaMaxima() / 2
 
   // arma.disparar le pregunta cuanto tarda en recargar
-  method velocidadAtaque() = if (self.enFaseFinal()) 1000 else 1800
+  method velocidadAtaque() = if (self.enFaseFinal()) 1300 else 1800
 
   method finalizarRecarga() {
     puedeDisparar = true
@@ -113,8 +114,11 @@ class JefeFinal inherits Enemigo {
   }
 
   method invocarOleada() {
+    self.limpiarMinisMuertos()
+
     const cantidad = minisPorOleada.get(oleadasInvocadas)
     oleadasInvocadas += 1
+
     game.say(self, "¡A rendir el recuperatorio!")
     desplazamientos.take(cantidad).forEach({ desplazamiento => self.invocarMiniEn(desplazamiento) })
   }
@@ -175,8 +179,11 @@ class JefeFinal inherits Enemigo {
     self.ocultarBarra()
     game.say(self, "Bueno, te dejo pasar...")
     // al caer el jefe, los mini parciales caen con el
-    minis.forEach({ mini => mini.recibirDanio(mini.vida()) })
+     minis.filter({ mini => not mini.estaMuerto() })
+         .forEach({ mini => mini.recibirDanio(mini.vida()) })
     super()
+    
+    sonidos.detenerSonidoFondo()
     game.schedule(1000,{gestorPantallas.mostrarVictoria()})
   }
 
@@ -187,9 +194,19 @@ class JefeFinal inherits Enemigo {
         game.removeTickEvent(self.nombreTickDisparo())
       }
       self.ocultarBarra()
+      self.limpiarMinisMuertos()
       minis.forEach({ mini => mini.retirar() })
     }
     super()
+  }
+
+
+  method limpiarMinisMuertos() {
+    minis.filter({ mini =>
+        mini.estaMuerto() and not game.hasVisual(mini)
+    }).forEach({ mini =>
+        minis.remove(mini)
+    })
   }
 
   override method reiniciar() {

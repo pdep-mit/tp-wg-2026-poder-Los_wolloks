@@ -27,11 +27,18 @@ object gestorPantallas {
     game.clear()
     game.addVisual(new Pantalla(image = "intro.png")) // dice "JUGAR - Presiona ENTER para comenzar"
 
+
+
     keyboard.enter().onPressDo({ // Tecla para iniciar el juego
       if (!enJuego) {
         self.comenzarPartida()
       }
     })
+
+    keyboard.i().onPressDo({
+        if (!enJuego) {
+        self.mostrarInstrucciones()
+      }})
   }
 
   method comenzarPartida() {
@@ -40,14 +47,32 @@ object gestorPantallas {
     config.iniciarPartida()
   }
 
+  method mostrarInstrucciones(){
+    game.clear()
+    game.addVisual(new Pantalla(image = "instrucciones.png"))
+
+    keyboard.enter().onPressDo({ // Tecla para iniciar el juego
+      if (!enJuego) {
+        self.comenzarPartida()
+      }
+    })
+    keyboard.m().onPressDo({ // Tecla para iniciar el juego
+      if (!enJuego) {
+        self.mostrarIntro()
+      }
+    })
+  }
   // --- OUTRO ---
   method mostrarVictoria() {
-    self.finalizarPartida("outro_victoria.png")
+     self.finalizarPartida("outro_victoria.png")
+    
   }
 
   method mostrarDerrota() {
     self.finalizarPartida("outro_derrota.png")
   }
+
+  
 
   method finalizarPartida(imagenOutro) {
     // si ya terminó (por ejemplo, murió dos veces seguidas) no se repite
@@ -63,16 +88,30 @@ object gestorPantallas {
       keyboard.r().onPressDo({
         if (!enJuego) {
           self.reiniciar()
+  
+        }
+      })
+       keyboard.m().onPressDo({
+        if (!enJuego) {
+          self.volverAlMenu()
+  
         }
       })
     }
   }
-
-  method reiniciar() {
+  method volverAlMenu() {
+    self.reiniciarEstado()
+    self.mostrarIntro()
+  }
+  method reiniciarEstado() {
     estudiante.reiniciar()
     mapa.reiniciar()
     self.soltarTeclas()
     hud.escudos([])
+  }
+
+  method reiniciar() {
+    self.reiniciarEstado()
     self.comenzarPartida()
   }
 

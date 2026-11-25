@@ -19,6 +19,6 @@ class Cuerpo {
 
   method sacar() {
     hitboxes.forEach({ h => game.removeVisual(h) })
-    hitboxes = []
+    hitboxes= []
   }
 }
